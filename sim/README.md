@@ -46,3 +46,29 @@ Sweep over all 7 goals:
 4. **Stray actions end the run.** Up to 15% of runs per goal pick something in another window (taskbar running-app buttons, Edge's or the app's own title-bar Close). `permit` refuses it and the run ends as "denied" instead of trying again.
 5. **Items scrolled out of view can't be reached.** `children()` drops offscreen items and there's no scroll action, so "set the font to Wingdings" fails 60/60.
 6. **The preview cutoff hides deep targets** (Calculator's buttons are past the 24-name breadth-first preview, which window chrome and memory buttons fill). Raising it to 40 didn't change success here, so it isn't the bottleneck with this chooser.
+
+## Real model on the simulated desktops
+
+`python sim/sim_benchmark.py 5 --real` asks the real OpenJev-Flash-9B Q4_K_M in a local Ollama (CPU only, about 5 s per decision, roughly 95 minutes for this run). Start Ollama with `LLAMA_ARG_CACHE_RAM=0`: with the prompt cache on, llama-server grew to 13.9 GB and was OOM-killed. Full output: `results_real.txt`.
+
+| Goal (5 runs each) | final command | node path |
+|---|---|---|
+| Select button | 5/5 | 5/5 |
+| Delay 5 s | 5/5 | 5/5 |
+| Video capture mode | 5/5 scored, **2/5 actually on** | 5/5 scored, **3/5 actually on** (6.8 turns) |
+| Arial Black, then Select | 2/5 | 5/5 |
+| Delay 3 s + area Window | 5/5 | 5/5 |
+| Select twice | 0/5 | 0/5 |
+| Calculator 1 + 1 = | 0/5 | 2/5 |
+| **Multi-step total** | **7/20** | **12/20** |
+| Extra: Advanced view / Full screen | 4/5, 5/5 | 5/5, 5/5 |
+| Extra: 9 - 4 = / 2 + 3 + 4 = | 0/5, 0/5 | 1/5, 0/5 |
+| Extra: Wingdings (offscreen) | 0/5 | 0/5 |
+
+What the real model adds to the findings above:
+
+1. **Node-path history wins again**, 12/20 to 7/20 on multi-step goals, and for the same reason on Arial Black.
+2. **Toggles get repeated, and the scoring misses it.** The prompt shows neither a toggle's state nor the result of an action, so after "Toggle Button "Capture mode"" the model toggles again. With node paths it did so 2–10 times per run and once hit the action limit. `benchmark.py` scores this goal by the action text alone, so a run that left capture mode off still counts as a success. The same gap exists on Windows. A state check like `shows_two` would catch it.
+3. **Repeated steps read as done.** "Press Select, then press Select again" failed 10/10. The model quits after one click, or clicks Copy first. "Don't repeat what's done" in the instructions works against goals that need a repeat.
+4. **Calculator mostly quits early.** 23 of 28 Calculator misses ended with the model choosing quit partway through, often before Equals. It also pressed some buttons twice or out of order (One, One, Plus). Node paths get further and finish 3/15.
+5. **Missing a confidence stop is rare.** Only 7 of 50 misses stopped on the 0.25 floor. Most were the model choosing quit or doing the wrong thing.

@@ -40,3 +40,125 @@ settings: floor 0.25, action limit 10, step limit 60, real model openjev-flash-9
       OK   final quit 9 calls 44s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
       OK   paths quit 9 calls 48s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
       MISS final quit early 5 calls 31s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS paths quit early 5 calls 31s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS final quit early 14 calls 83s ['Click Button "One" id=num1Button', 'Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS paths quit early 9 calls 54s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   final quit 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   paths quit 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   final quit 5 calls 25s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   paths quit 5 calls 26s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   final quit 7 calls 37s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   paths quit 22 calls 132s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      MISS final quit early 4 calls 24s ['Select ListItem "Arial Black"'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   paths quit 6 calls 38s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   final quit 9 calls 44s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   paths quit 9 calls 49s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      MISS final quit early 5 calls 31s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS paths quit early 3 calls 19s ['Click Button "Copy" id=103'] | press the Select button in Character Map, then press Select again
+      MISS final quit early 14 calls 83s ['Click Button "One" id=num1Button', 'Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS paths quit early 9 calls 54s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   final quit 5 calls 31s ['Click Button "Select" id=102', 'Click Button "Copy" id=103'] | press the Select button in Character Map
+      OK   paths quit 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   final quit 5 calls 26s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   paths quit 5 calls 26s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   final quit 8 calls 41s ['Select ListItem "Full screen"', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   paths quit 11 calls 60s ['Select ListItem "Full screen"', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      MISS final quit early 4 calls 25s ['Select ListItem "Arial Black"'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   paths quit 6 calls 38s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   final quit 9 calls 45s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   paths quit 9 calls 50s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      MISS final quit early 1 calls 7s [] | press the Select button in Character Map, then press Select again
+      MISS paths quit early 1 calls 0s [] | press the Select button in Character Map, then press Select again
+      MISS final quit early 13 calls 79s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button'] | in Calculator, press 1 + 1 = to find the answer
+      OK   paths quit 17 calls 112s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+press the Select button in Character Map
+  final command  5/5 succeeded, 2 exact, 1.60 turns (optimal 1), 4.2 calls | misses: -
+  node path      5/5 succeeded, 5 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+set the snip delay to 5 seconds in Snipping Tool
+  final command  5/5 succeeded, 5 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  node path      5/5 succeeded, 5 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+turn on video capture mode in Snipping Tool
+  final command  5/5 succeeded, 1 exact, 1.80 turns (optimal 1), 6.8 calls | misses: -
+  node path      5/5 succeeded, 0 exact, 6.80 turns (optimal 1), 21.4 calls | misses: -
+set the font to Arial Black in Character Map and then press the Select button
+  final command  2/5 succeeded, 2 exact, 2.00 turns (optimal 2), 4.8 calls | misses: quit early 3
+  node path      5/5 succeeded, 5 exact, 2.00 turns (optimal 2), 6.0 calls | misses: -
+set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+  final command  5/5 succeeded, 5 exact, 2.00 turns (optimal 2), 9.0 calls | misses: -
+  node path      5/5 succeeded, 5 exact, 2.00 turns (optimal 2), 9.0 calls | misses: -
+press the Select button in Character Map, then press Select again
+  final command  0/5 succeeded, 0 exact, - turns (optimal 2), 3.4 calls | misses: quit early 4, low confidence 1
+  node path      0/5 succeeded, 0 exact, - turns (optimal 2), 3.0 calls | misses: quit early 5
+in Calculator, press 1 + 1 = to find the answer
+  final command  0/5 succeeded, 0 exact, - turns (optimal 4), 12.8 calls | misses: quit early 5
+  node path      2/5 succeeded, 2 exact, 4.00 turns (optimal 4), 14.0 calls | misses: quit early 2, low confidence 1
+multi-step goals together
+  final command  7/20 succeeded
+  node path      12/20 succeeded
+
+===== extra goals =====
+      OK   final quit 3 calls 19s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   paths quit 3 calls 19s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   final quit 5 calls 25s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   paths quit 5 calls 26s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      MISS final quit early 10 calls 58s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton'] | in Calculator, press 9 - 4 = to find the answer
+      MISS paths low confidence 14 calls 90s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS final quit early 10 calls 61s ['Click Button "Two" id=num2Button', 'Click Button "Three" id=num3Button'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS paths quit early 25 calls 176s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS final quit early 3 calls 17s [] | set the font to Wingdings in Character Map
+      MISS paths quit early 3 calls 17s [] | set the font to Wingdings in Character Map
+      OK   final quit 3 calls 18s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   paths quit 3 calls 19s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   final quit 5 calls 25s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   paths quit 5 calls 25s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      MISS final quit early 9 calls 53s ['Click Button "Four" id=num4Button', 'Click Button "Minus" id=minusButton'] | in Calculator, press 9 - 4 = to find the answer
+      MISS paths quit early 9 calls 55s ['Click Button "Four" id=num4Button', 'Click Button "Minus" id=minusButton'] | in Calculator, press 9 - 4 = to find the answer
+      MISS final quit early 10 calls 60s ['Click Button "Two" id=num2Button', 'Click Button "Three" id=num3Button'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS paths low confidence 10 calls 60s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS final low confidence 3 calls 17s [] | set the font to Wingdings in Character Map
+      MISS paths low confidence 3 calls 17s [] | set the font to Wingdings in Character Map
+      OK   final quit 3 calls 19s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   paths quit 3 calls 19s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   final quit 5 calls 25s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   paths quit 5 calls 25s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      MISS final quit early 13 calls 79s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS paths low confidence 14 calls 88s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS final quit early 9 calls 53s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS paths quit early 9 calls 54s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS final quit early 3 calls 17s [] | set the font to Wingdings in Character Map
+      MISS paths quit early 3 calls 17s [] | set the font to Wingdings in Character Map
+      OK   final quit 4 calls 23s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   paths quit 3 calls 19s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   final quit 5 calls 25s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   paths quit 5 calls 25s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      MISS final quit early 10 calls 58s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton'] | in Calculator, press 9 - 4 = to find the answer
+      OK   paths quit 17 calls 112s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      MISS final quit early 10 calls 58s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS paths quit early 22 calls 149s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS final quit early 3 calls 17s [] | set the font to Wingdings in Character Map
+      MISS paths quit early 3 calls 17s [] | set the font to Wingdings in Character Map
+      MISS final wrong result 5 calls 31s ['Toggle CheckBox "Advanced view" id=109', 'Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   paths quit 3 calls 19s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   final quit 5 calls 25s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   paths quit 5 calls 25s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      MISS final quit early 17 calls 103s ['Click Button "Minus" id=minusButton', 'Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS paths quit early 17 calls 112s ['Click Button "Minus" id=minusButton', 'Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS final quit early 14 calls 84s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS paths quit early 21 calls 144s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS final quit early 3 calls 17s [] | set the font to Wingdings in Character Map
+      MISS paths quit early 3 calls 17s [] | set the font to Wingdings in Character Map
+turn on Advanced view in Character Map
+  final command  4/5 succeeded, 4 exact, 1.00 turns (optimal 1), 3.6 calls | misses: wrong result 1
+  node path      5/5 succeeded, 5 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+set the snipping area to Full screen in Snipping Tool
+  final command  5/5 succeeded, 5 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  node path      5/5 succeeded, 5 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+in Calculator, press 9 - 4 = to find the answer
+  final command  0/5 succeeded, 0 exact, - turns (optimal 4), 11.8 calls | misses: quit early 5
+  node path      1/5 succeeded, 1 exact, 4.00 turns (optimal 4), 14.2 calls | misses: low confidence 2, quit early 2
+in Calculator, press 2 + 3 + 4 = to find the answer
+  final command  0/5 succeeded, 0 exact, - turns (optimal 6), 10.6 calls | misses: quit early 5
+  node path      0/5 succeeded, 0 exact, - turns (optimal 6), 17.4 calls | misses: quit early 4, low confidence 1
+set the font to Wingdings in Character Map
+  final command  0/5 succeeded, 0 exact, - turns (optimal 1), 3.0 calls | misses: quit early 4, low confidence 1
+  node path      0/5 succeeded, 0 exact, - turns (optimal 1), 3.0 calls | misses: quit early 4, low confidence 1
