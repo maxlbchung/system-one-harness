@@ -1,3 +1,42 @@
 settings: floor 0.25, action limit 10, step limit 60, real model openjev-flash-9b, 5 repeats
 
 ===== benchmark.py goals =====
+      OK   final quit 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   paths quit 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   final quit 5 calls 26s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   paths quit 5 calls 26s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   final quit 7 calls 36s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   paths quit 16 calls 90s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   final quit 6 calls 37s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   paths quit 6 calls 38s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   final quit 9 calls 45s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   paths quit 9 calls 49s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      MISS final quit early 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS paths quit early 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS final quit early 13 calls 79s ['Click Button "One" id=num1Button', 'Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS paths low confidence 18 calls 117s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   final quit 5 calls 31s ['Click Button "Select" id=102', 'Click Button "Copy" id=103'] | press the Select button in Character Map
+      OK   paths quit 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   final quit 5 calls 25s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   paths quit 5 calls 26s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   final quit 7 calls 37s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   paths quit 28 calls 180s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      MISS final quit early 4 calls 25s ['Select ListItem "Arial Black"'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   paths quit 6 calls 38s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   final quit 9 calls 45s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   paths quit 9 calls 49s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      MISS final low confidence 3 calls 19s ['Click Button "Copy" id=103'] | press the Select button in Character Map, then press Select again
+      MISS paths quit early 3 calls 19s ['Click Button "Copy" id=103'] | press the Select button in Character Map, then press Select again
+      MISS final quit early 10 calls 57s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   paths quit 17 calls 110s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   final quit 5 calls 31s ['Click Button "Select" id=102', 'Click Button "Copy" id=103'] | press the Select button in Character Map
+      OK   paths quit 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   final quit 5 calls 26s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   paths quit 5 calls 25s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   final quit 5 calls 25s ['Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   paths action limit 30 calls 193s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   final quit 6 calls 36s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   paths quit 6 calls 38s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   final quit 9 calls 44s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   paths quit 9 calls 48s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      MISS final quit early 5 calls 31s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
