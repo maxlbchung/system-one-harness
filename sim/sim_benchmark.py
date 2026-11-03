@@ -1,4 +1,6 @@
-"""benchmark.py's goals on simulated desktops with a proxy model: python sim/sim_benchmark.py [repeats]
+"""benchmark.py's goals on simulated desktops: python sim/sim_benchmark.py [repeats] [--real]
+
+With --real, decisions come from the real OpenJev model in a local Ollama instead of the proxy.
 
 Runs where benchmark.py can't (no Windows, no UIA, no Ollama). The harness code is unchanged:
 only uiautomation, the desktop and the model's HTTP endpoint are replaced (see desktop.py and
@@ -11,7 +13,9 @@ and the harness's own default confidence floor.
 """
 import collections
 import os
+import random
 import sys
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -25,6 +29,7 @@ import harness  # noqa: E402
 import proxy_model  # noqa: E402
 
 REPEATS = 30
+REAL = False  # Set by --real.
 TITLE = {benchmark.CHARMAP: "Character Map", benchmark.SNIPPING: "Snipping Tool", benchmark.CALCULATOR: "Calculator"}
 
 
@@ -54,7 +59,11 @@ def attempt(app, goal, wanted, check, seed):
     """One scored run: (succeeded, turns, model calls, how it ended)."""
     root, mine, _ = desktop.desktop(TITLE[app])
     uia.GetRootControl = lambda: root
-    calls = proxy_model.install(seed)
+    if REAL:
+        random.seed(seed)  # The harness shuffles options; this pairs both history modes on the same order.
+        calls = [0]
+    else:
+        calls = proxy_model.install(seed)
     done, stops = [], []
 
     def on_event(event):
@@ -71,9 +80,14 @@ def attempt(app, goal, wanted, check, seed):
             found.pop("expand", None)
         return found
 
+    def ask(*args):
+        calls[0] += 1
+        return harness.ask_openjev(*args, harness.MODEL)
+
     harness.actions = actions
+    started = time.monotonic()
     try:
-        ending = harness.run(goal, root, lambda *a: harness.ask_openjev(*a, harness.MODEL),
+        ending = harness.run(goal, root, ask,
                              permit=lambda verb, control, text: control.ProcessId in mine, on_event=on_event)
     finally:
         harness.actions = real_actions
@@ -81,6 +95,10 @@ def attempt(app, goal, wanted, check, seed):
     reason = ending if ending != "quit" or not stops else ("low confidence" if stops[0].startswith("confidence") else stops[0].removeprefix("reached the ").split(" of ")[0])
     if not success and reason == "quit":
         reason = "quit early" if not benchmark.reached(wanted, done) else "wrong result"
+    if REAL:
+        seconds = time.monotonic() - started
+        print(f"      {'OK  ' if success else 'MISS'} {'paths' if harness.HISTORY_PATHS else 'final'} {reason} {calls[0]} calls "
+              f"{seconds:.0f}s {[d[:40] for d in done]} | {goal}", flush=True)
     return success, len(done), calls[0], reason
 
 
@@ -117,8 +135,9 @@ def quiet(event):
 def main(repeats):
     harness.MIN_CONFIDENCE, harness.MAX_ACTIONS = benchmark.MIN_CONFIDENCE, benchmark.MAX_ACTIONS
     harness.ACTION_WAIT = 0
+    model = f"real model {harness.MODEL}" if REAL else f"proxy model, noise {proxy_model.NOISE}"
     print(f"settings: floor {harness.MIN_CONFIDENCE}, action limit {harness.MAX_ACTIONS}, step limit {harness.MAX_STEPS}, "
-          f"noise {proxy_model.NOISE}, {repeats} repeats\n")
+          f"{model}, {repeats} repeats\n", flush=True)
     print("===== benchmark.py goals =====")
     main_results = suite(benchmark.GOALS, repeats)
     report(benchmark.GOALS, main_results)
@@ -129,6 +148,8 @@ def main(repeats):
 
     print("\n===== extra goals =====")
     report(EXTRA, suite(EXTRA, repeats, seed0=10 ** 6))
+    if REAL:
+        return
 
     sweep_repeats = max(1, repeats // 3)
     print(f"\n===== success on benchmark.py goals by model noise ({sweep_repeats} repeats each) =====")
@@ -142,4 +163,6 @@ def main(repeats):
 
 if __name__ == "__main__":
     harness.print = lambda *a, **k: None  # The harness's own "dropping options" notes.
-    main(int(sys.argv[1]) if len(sys.argv) > 1 else REPEATS)
+    REAL = "--real" in sys.argv
+    numbers = [a for a in sys.argv[1:] if a.isdigit()]
+    main(int(numbers[0]) if numbers else REPEATS)
