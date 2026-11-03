@@ -1,15 +1,3 @@
 settings: floor 0.25, action limit 10, step limit 60, real model openjev-flash-9b, 5 repeats
 
 ===== benchmark.py goals =====
-      OK   final quit 3 calls 20s ['Click Button "Select" id=102'] | press the Select button in Character Map
-      OK   paths quit 3 calls 8s ['Click Button "Select" id=102'] | press the Select button in Character Map
-      OK   final quit 5 calls 26s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
-      OK   paths quit 5 calls 9s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
-      OK   final quit 7 calls 38s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
-      OK   paths quit 16 calls 77s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
-      OK   final quit 6 calls 36s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
-      OK   paths quit 6 calls 23s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
-      OK   final quit 9 calls 45s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
-      OK   paths quit 9 calls 32s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
-      MISS final quit early 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
-      MISS paths quit early 3 calls 9s ['Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
