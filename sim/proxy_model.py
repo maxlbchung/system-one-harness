@@ -34,7 +34,7 @@ SYNONYMS = {"+": "plus", "=": "equals", "-": "minus", "*": "multiply", "times": 
 DIGITS = "zero one two three four five six seven eight nine".split()
 CONCEPTS = {"number": DIGITS, "pad": DIGITS, "operators": ["plus", "minus", "multiply", "divide", "equals"],
             "font": ["arial", "black", "wingdings"], "delay": DIGITS, "rectangle": ["area"]}  # What a group's name implies it holds.
-VERB_START = r"(Do nothing more|Go one level inside|Activate this item|Switch this item|Select this item|Open this dropdown|Collapse this item|Replace this item)"
+VERB_START = r"(Do nothing more|Go back up|Go one level inside|Activate this item|Switch this item|Select this item|Open this dropdown|Collapse this item|Replace this item)"
 
 
 def words(text):

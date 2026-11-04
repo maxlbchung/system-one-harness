@@ -136,13 +136,16 @@ def pick(control):
         combo.selected = control.Name
         if combo.ControlTypeName == "ComboBoxControl" and getattr(combo, "named_by_value", False):
             combo.Name = control.Name
+        if value := combo.patterns.get(uia.PatternId.ValuePattern):
+            value.Value = control.Name
         combo.patterns[uia.PatternId.ExpandCollapsePattern].Collapse()
 
 
-def dropdown(name, entries, id="", visible=None, named_by_value=False):
+def dropdown(name, entries, id="", visible=None, named_by_value=False, value=None):
+    """A dropdown. WinUI ones take their selection as their name; Win32 ones keep a label and hold it as their value."""
     visible = len(entries) if visible is None else visible
     listed = Control(name, "List", *[Control(e, "ListItem", select=pick, offscreen=i >= visible) for i, e in enumerate(entries)])
-    combo = Control(name, "ComboBox", id=id, items=listed)
+    combo = Control(name, "ComboBox", id=id, items=listed, value=value)
     combo.named_by_value, combo.selected = named_by_value, name
     return combo
 
@@ -168,7 +171,7 @@ def character_map():
     return Control("Character Map", "Window",
                    title_bar("Character Map"),
                    Control("Font :", "Text"),
-                   dropdown("Font :", FONTS, id="105", visible=16),
+                   dropdown("Font :", FONTS, id="105", visible=16, value="Arial"),
                    Control("Help", "Button", id="107", invoke=noop),
                    Control("", "Pane", id="100"),  # The character grid, drawn by hand, lists nothing to UIA.
                    Control("Characters to copy :", "Text"),

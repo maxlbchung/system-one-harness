@@ -1,4 +1,4 @@
-"""Real goals, real model, both kinds of history: python benchmark.py [repeats]
+"""Real goals, real model: python benchmark.py [repeats]
 
 Clicks happen only inside test apps opened here, and each run is skipped if its app is
 already open, since that one is the user's. A run succeeds if its steps all happened in
@@ -17,7 +17,6 @@ import harness
 
 REPEATS = 5
 MIN_CONFIDENCE, MAX_ACTIONS = 0.25, 10  # The user's settings. Room to overshoot a four step goal.
-HISTORIES = {"final command": False, "node path": True}
 SEARCH_SECONDS = 1
 
 
@@ -113,11 +112,11 @@ def attempt(app, goal, wanted, check, mine, windows):
     return success, len(done)
 
 
-def row(name, results, optimal):
+def row(results, optimal):
     wins = [turns for success, turns in results if success]
     exact = sum(turns == optimal for turns in wins)
     turns = f"{statistics.mean(wins):.2f}" if wins else "-"
-    return f"{name:14} {len(wins)}/{len(results)} succeeded, {exact} exact, {turns} turns (optimal {optimal})"
+    return f"{len(wins)}/{len(results)} succeeded, {exact} exact, {turns} turns (optimal {optimal})"
 
 
 def main(repeats):
@@ -133,29 +132,22 @@ def main(repeats):
 
     harness.actions = actions
     uia.ShowWindow = lambda handle, command: real_show(handle, command) if handle in windows else False
-    results = {(goal, name): [] for _, goal, _, _ in GOALS for name in HISTORIES}
+    results = {goal: [] for _, goal, _, _ in GOALS}
     with uia.UIAutomationInitializerInThread():
         for repeat in range(repeats):
             for app, goal, wanted, check in GOALS:
                 print(f"\n[{repeat + 1}/{repeats}] {goal}", flush=True)
-                for name, paths in HISTORIES.items():  # In pairs, so both meet the same desktop.
-                    harness.HISTORY_PATHS = paths
-                    print(f"   {name}", flush=True)
-                    result = attempt(app, goal, wanted, check, mine, windows)
-                    if result:
-                        results[goal, name].append(result)
-                    else:
-                        print("      SKIP app already open or not on this desktop", flush=True)
+                result = attempt(app, goal, wanted, check, mine, windows)
+                if result:
+                    results[goal].append(result)
+                else:
+                    print("      SKIP app already open or not on this desktop", flush=True)
     print("\n===== results =====")
     for _, goal, wanted, _ in GOALS:
-        print(goal)
-        for name in HISTORIES:
-            print("  " + row(name, results[goal, name], len(wanted)))
-    print("multi-step goals together, turns compared per goal above")
-    for name in HISTORIES:
-        runs = [results[goal, name] for _, goal, wanted, _ in GOALS if len(wanted) > 1]
-        wins = sum(success for goal_runs in runs for success, _ in goal_runs)
-        print(f"  {name:14} {wins}/{sum(map(len, runs))} succeeded")
+        print(f"{goal}\n  {row(results[goal], len(wanted))}")
+    runs = [results[goal] for _, goal, wanted, _ in GOALS if len(wanted) > 1]
+    wins = sum(success for goal_runs in runs for success, _ in goal_runs)
+    print(f"multi-step goals together: {wins}/{sum(map(len, runs))} succeeded")
 
 
 if __name__ == "__main__":

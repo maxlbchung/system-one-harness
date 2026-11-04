@@ -365,12 +365,6 @@ history = [["App", "Click X"], ["Click Y"]]
 harness.ask_openjev("save it", ["Desktop", "App"], harness.options(window, "hi"), "hi", history, "m")
 assert prompts[-1].startswith("State:\nDone so far: App > Click X; Click Y\nLocation: Desktop > App\n\nQuestion: save it\n")
 
-# With paths off, it shows only the final commands.
-harness.HISTORY_PATHS = False
-harness.ask_openjev("save it", ["Desktop", "App"], harness.options(window, "hi"), "hi", history, "m")
-assert prompts[-1].startswith("State:\nDone so far: Click X; Click Y\nLocation: Desktop > App\n\n")
-harness.HISTORY_PATHS = True
-
 # The model list comes from Ollama, and is empty if Ollama isn't running.
 urllib.request.urlopen = lambda url, timeout: io.BytesIO(json.dumps({"models": [{"name": "a:latest"}, {"name": "b:q4"}]}).encode())
 assert harness.installed_models() == ["a", "b:q4"]
@@ -388,5 +382,53 @@ wanted = ['"One"', '"Plus"', '"One"']
 assert benchmark.reached(wanted, ['Click "One"', 'Click "Two"', 'Click "Plus"', 'Click "One"'])
 assert not benchmark.reached(wanted, ['Click "One"', 'Click "Plus"'])
 assert not benchmark.reached(wanted, ['Click "Plus"', 'Click "One"', 'Click "One"'])
+
+# With RESUME, it carries on where it acted, and can go back up, instead of restarting at the desktop.
+clicks.clear()
+events = []
+harness.RESUME = True
+ask = scripted(OPEN, SAVE, SAVE, "back", "quit")
+assert harness.run("save twice", root, ask, on_event=events.append) == "quit"
+assert clicks == ["save"] * 2 and "restart" not in [e["kind"] for e in events]
+assert ask.seen[2] == ["quit", "back", SAVE] and "back" not in ask.seen[4]  # No way up from the desktop.
+assert ask.done[2] == [WALKED] and ask.done[3] == [WALKED] * 2
+harness.RESUME = False
+
+
+class Switch(Node):
+    """A toggle that reports its state, like UIA's TogglePattern."""
+
+    def __init__(self, name):
+        super().__init__(name, acts={"toggle": self.Toggle})
+        self.ToggleState = 0
+
+    def GetPattern(self, pattern):
+        return self if pattern == harness.uia.PatternId.TogglePattern else None
+
+    def Toggle(self):
+        self.ToggleState = 1 - self.ToggleState
+
+
+class Text(Node):
+    ControlTypeName = "TextControl"
+
+
+# With SHOW_STATE, labels carry states, the history says what an action set, and read-only text is shown.
+wifi = Switch("Wifi")
+panel = Node("Panel", wifi, Text("Status: idle"))
+seen = []
+
+
+def ask_state(goal, path, opts, text, finished):
+    seen.append((list(path), list(opts), list(finished)))
+    return {"choice": ['toggle Pane "Wifi" (off)', "quit"][len(seen) - 1], "confidence": 0.9}
+
+
+harness.SHOW_STATE = True
+assert harness.run("turn on wifi", Node("Desktop", panel), ask_state) == "quit"
+assert wifi.ToggleState == 1
+assert seen[0][0] == ['Pane "Desktop"', 'Pane "Panel" showing Status: idle'] and 'toggle Pane "Wifi" (off)' in seen[0][1]
+assert seen[1][2] == [['Pane "Panel"', 'Toggle Pane "Wifi" (on)']]
+harness.SHOW_STATE = False
 
 print("ok")
