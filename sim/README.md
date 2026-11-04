@@ -1,74 +1,96 @@
 # Simulated benchmark
 
-`benchmark.py` needs Windows UI Automation, the real apps and OpenJev in Ollama. This folder runs the same goals without any of them:
+`benchmark.py` needs Windows UI Automation and the real apps. This folder runs the same goals without them:
 
 - `winstub.py`: stand-ins for `uiautomation` and `_ctypes.COMError`, so `harness.py` and `benchmark.py` import unchanged.
 - `desktop.py`: simulated UIA trees for Character Map, Snipping Tool and Calculator, plus Edge, File Explorer, the taskbar and Program Manager as distractors. Acting on a control changes state: a pick closes its dropdown, Close removes the window, Calculator computes.
 - `proxy_model.py`: replaces `urlopen`, so `harness.ask_openjev` runs unchanged (prompt, shuffle, logprobs). It's a stateless lexical chooser with logit noise and a first-option bias. With noise 0 it solves every goal the tree allows.
-- `sim_benchmark.py`: `benchmark.py`'s goals, settings and scoring, both history modes on paired seeds, 5 extra goals and a sweep over noise and confidence floor.
+- `sim_benchmark.py`: `benchmark.py`'s goals, settings and scoring, 5 extra goals, harness variants compared on the same seeds, and a sweep over noise and confidence floor. Every goal also gets an on-screen check (toggle on, the right item picked, the right number of Select clicks), because `benchmark.py` mostly checks only action text, which passes a run that toggled twice.
 
 ```bash
-python sim/sim_benchmark.py 60
+python sim/sim_benchmark.py 20
+```
+
+```bash
+python sim/sim_benchmark.py 3 --real
 ```
 
 ```bash
 python sim/run_tests.py
 ```
 
-These results measure the harness's tree handling, prompt, history and stopping logic with a fixed, imperfect chooser. They don't measure OpenJev's accuracy. Full output: `results.txt`.
+`--real` asks OpenJev-Flash-9B Q4_K_M in a local Ollama (CPU only, 5–10 s per decision). Start Ollama with `LLAMA_ARG_CACHE_RAM=0`: with the prompt cache on, llama-server grew to 13.9 GB and was OOM-killed. `--variants=baseline,resume` picks variants.
 
-## Results (60 repeats, noise 1.0, floor 0.25, action limit 10)
+## Variants
 
-| Goal | final command | node path |
+Three harness flags, all off by default, each aimed at the biggest real-model failures:
+
+| Variant | Change | Aimed at |
 |---|---|---|
-| Select button | 60/60 | 60/60 |
-| Delay 5 s | 56/60 | 56/60 |
-| Video capture mode | 60/60 (1.72 turns) | 59/60 (1.05 turns) |
-| Arial Black, then Select | **10/60** | **58/60** |
-| Delay 3 s + area Window | 41/60 (4.02 turns) | 48/60 (2.08 turns) |
-| Select twice | 60/60 | 59/60 |
-| Calculator 1 + 1 = | 37/60 | 29/60 |
-| **Multi-step total** | **148/240** | **194/240** |
+| `state` | `SHOW_STATE`: labels carry toggle states and values (`(on)`, `value="Arial"`), the history records what an action set, and the location lists read-only text such as `Display is 2`. | Toggles pressed again and again; no feedback from Calculator |
+| `instructions` | A new `INSTRUCTIONS`: don't redo an action unless the question asks for it again, and quit only when every step is in Done so far. | Early quits; "Select twice" |
+| `resume` | `RESUME`: after an action, carry on where it happened, with a "back" option, instead of from the desktop. | 14+ calls per Calculator goal, each one a chance to go wrong |
 
-Sweep over all 7 goals:
+## Real model: variants against the baseline
 
-| noise | floor 0.25, final / path | floor 0.5 (harness default), final / path |
+3 runs per goal and variant, on the same seeds. Wingdings is skipped because no variant can reach an offscreen item. Full output: `results_real.txt`.
+
+| Goal | baseline | state | instructions | resume |
+|---|---|---|---|---|
+| Select button | 3/3 | 3/3 | 3/3 | 0/3 |
+| Delay 5 s | 3/3 | 3/3 | 3/3 | 3/3 |
+| Video capture mode | 2/3 | 3/3 | 2/3 | 0/3 |
+| Arial Black, then Select | 3/3 | 2/3 | 1/3 | 1/3 |
+| Delay 3 s + area Window | 3/3 | 3/3 | 3/3 | 3/3 |
+| Select twice | 0/3 | 0/3 | 0/3 | 0/3 |
+| Calculator 1 + 1 = | 1/3 | 1/3 | 2/3 | 0/3 |
+| Advanced view | 3/3 | 3/3 | 3/3 | 3/3 |
+| Full screen | 3/3 | 3/3 | 2/3 | 3/3 |
+| Calculator 9 - 4 = | 1/3 | 1/3 | 0/3 | 0/3 |
+| Calculator 2 + 3 + 4 = | 0/3 | 0/3 | 0/3 | 0/3 |
+| **All goals** | **22/33** | **22/33** | **19/33** | **13/33** |
+| Calls per run | 9.3 | 8.6 | 7.7 | 8.7 |
+
+**None of the three beats the baseline.** Keep all three flags off.
+
+1. **`state` ties (22/33).** The model sees `(on)` and `Display is 2` but doesn't act on them. It still toggled capture mode 3, 9 and 5 times (baseline: 5, 9, 10), and all 3 runs passed only because the counts happened to be odd. On every Calculator goal it made exactly the baseline's choices, so the display text never changed a pick. It's cheap and harmless, but this model doesn't use it.
+2. **`instructions` is worse (19/33).** It got one more Calculator 1 + 1 = right, but it quit before acting on "Select twice" in all 3 runs, and lost two Arial Black runs. The stricter quit rule didn't stop early quits on the other Calculator goals.
+3. **`resume` is much worse (13/33).** Left where it just acted, the model presses the same button again instead of quitting or going back: Select 10 times, capture mode 10 times, One until the action limit. Restarting from the desktop is what makes it re-read the goal and stop. Calls per run didn't drop either, because the runs ran to the action limit.
+
+What's left is in the model rather than the prompt layout. It doesn't use state it's shown, and it reads "repeat" goals as done after one step. The likely next steps are to change how quit and repeated actions are scored, not how the tree is shown:
+- Stop on a repeated identical action unless the goal asks for a repeat.
+- Have the harness check toggle and value state itself instead of leaving it to the model.
+
+Three runs per cell is a small sample, so 1-run differences are noise. The `resume` drop and the `instructions` "Select twice" collapse were consistent in every run.
+
+## Proxy model: baseline (20 repeats, noise 1.0, floor 0.25, action limit 10)
+
+The proxy ignores wording and states, and never picks "back", so it can't judge the variants. It's useful for the tree and stopping logic. Full output: `results.txt`.
+
+| Goal | baseline |
+|---|---|
+| Select button | 20/20 |
+| Delay 5 s | 19/20 |
+| Video capture mode | 19/20 |
+| Arial Black, then Select | 19/20 |
+| Delay 3 s + area Window | 16/20 |
+| Select twice | 19/20 |
+| Calculator 1 + 1 = | 12/20 |
+| Calculator 9 - 4 = / 2 + 3 + 4 = | 13/20, 5/20 |
+| Wingdings (offscreen) | 0/20 |
+
+Sweep over `benchmark.py`'s 7 goals:
+
+| noise | floor 0.25 | floor 0.5 (harness default) |
 |---|---|---|
-| 0.0 | 86% / 100% | 83% / 100% |
-| 1.0 | 79% / 88% | 58% / 72% |
-| 2.0 | 63% / 66% | 48% / 39% |
+| 0.0 | 100% | 100% |
+| 1.0 | 88% | 76% |
+| 2.0 | 69% | 50% |
 
-## Findings
+## Findings that hold for both models
 
-1. **Node-path history beats final-command history** (+19 points on multi-step goals, with near-optimal turns). With final commands only, `Select ListItem "Arial Black"` doesn't say it was the font, so the font step still looks undone. It fails even with a noise-free chooser.
-2. **A floor of 0.5 costs 16–21 points** once the chooser is noisy (noise 1.0), and gains nothing when it isn't. Confidence also drops when two containers are both right, like "Number pad" and "Standard operators", so a high floor stops good runs. The benchmark's 0.25 is the better setting.
-3. **Long goals compound errors.** Each action restarts the walk at the desktop, so 1 + 1 = takes about 16–18 model calls, and one wrong press can't be undone. In Calculator, 76 of 90 misses started with a correct button pressed out of order. The proxy's weak sense of order inflates this, but the harness also has no way to see the result: the display isn't in the prompt, only the action history.
-4. **Stray actions end the run.** Up to 15% of runs per goal pick something in another window (taskbar running-app buttons, Edge's or the app's own title-bar Close). `permit` refuses it and the run ends as "denied" instead of trying again.
-5. **Items scrolled out of view can't be reached.** `children()` drops offscreen items and there's no scroll action, so "set the font to Wingdings" fails 60/60.
-6. **The preview cutoff hides deep targets** (Calculator's buttons are past the 24-name breadth-first preview, which window chrome and memory buttons fill). Raising it to 40 didn't change success here, so it isn't the bottleneck with this chooser.
-
-## Real model on the simulated desktops
-
-`python sim/sim_benchmark.py 5 --real` asks the real OpenJev-Flash-9B Q4_K_M in a local Ollama (CPU only, about 5 s per decision, roughly 95 minutes for this run). Start Ollama with `LLAMA_ARG_CACHE_RAM=0`: with the prompt cache on, llama-server grew to 13.9 GB and was OOM-killed. Full output: `results_real.txt`.
-
-| Goal (5 runs each) | final command | node path |
-|---|---|---|
-| Select button | 5/5 | 5/5 |
-| Delay 5 s | 5/5 | 5/5 |
-| Video capture mode | 5/5 scored, **2/5 actually on** | 5/5 scored, **3/5 actually on** (6.8 turns) |
-| Arial Black, then Select | 2/5 | 5/5 |
-| Delay 3 s + area Window | 5/5 | 5/5 |
-| Select twice | 0/5 | 0/5 |
-| Calculator 1 + 1 = | 0/5 | 2/5 |
-| **Multi-step total** | **7/20** | **12/20** |
-| Extra: Advanced view / Full screen | 4/5, 5/5 | 5/5, 5/5 |
-| Extra: 9 - 4 = / 2 + 3 + 4 = | 0/5, 0/5 | 1/5, 0/5 |
-| Extra: Wingdings (offscreen) | 0/5 | 0/5 |
-
-What the real model adds to the findings above:
-
-1. **Node-path history wins again**, 12/20 to 7/20 on multi-step goals, and for the same reason on Arial Black.
-2. **Toggles get repeated, and the scoring misses it.** The prompt shows neither a toggle's state nor the result of an action, so after "Toggle Button "Capture mode"" the model toggles again. With node paths it did so 2–10 times per run and once hit the action limit. `benchmark.py` scores this goal by the action text alone, so a run that left capture mode off still counts as a success. The same gap exists on Windows. A state check like `shows_two` would catch it.
-3. **Repeated steps read as done.** "Press Select, then press Select again" failed 10/10. The model quits after one click, or clicks Copy first. "Don't repeat what's done" in the instructions works against goals that need a repeat.
-4. **Calculator mostly quits early.** 23 of 27 Calculator misses ended with the model choosing quit partway through, often before Equals. It also pressed some buttons twice or out of order (One, One, Plus). Node paths get further: all 3 Calculator successes out of 30 runs used them.
-5. **Missing a confidence stop is rare.** Only 7 of 51 misses stopped on the 0.25 floor. Most were the model choosing quit or doing the wrong thing.
+1. **A floor of 0.5 costs 12–19 points** once the chooser is noisy, and gains nothing when it isn't. Confidence also drops when two containers are both right, like "Number pad" and "Standard operators". The benchmark's 0.25 is the better setting.
+2. **Long goals compound errors.** Each action restarts at the desktop, so 1 + 1 = takes about 15 model calls, and one wrong press can't be undone.
+3. **Stray actions end the run.** Some runs pick something in another window (taskbar running-app buttons, a title bar's Close). `permit` refuses it and the run ends as "denied" instead of trying again.
+4. **Items scrolled out of view can't be reached.** `children()` drops offscreen items and there's no scroll action, so "set the font to Wingdings" always fails.
+5. **`benchmark.py` scores by action text,** so a toggle pressed an even number of times still passes. The real model did that in 1 of 3 baseline capture-mode runs here, and 2 of 5 in an earlier run. A state check like `shows_two` would catch it on Windows too.
