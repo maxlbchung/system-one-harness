@@ -76,7 +76,18 @@ def parse(prompt):
     return goal, done + [location], options  # Where it already is counts as reached.
 
 
+def judged(prompt, rng):
+    """The yes/no done question: yes once nothing in the goal is left."""
+    goal = re.search(r"\nQuestion: (.*)\n", prompt).group(1)
+    done_line = re.search(r"Done so far: (.*)\n", prompt)
+    left = remaining(goal, done_line.group(1).split("; ") if done_line else [])
+    letters = dict(re.findall(r"^\[(\w)\] (yes|no):", prompt, re.MULTILINE))
+    return {k: (QUIT_DONE if (v == "yes") != bool(left) else 0.0) + rng.gauss(0, NOISE) for k, v in letters.items()}
+
+
 def logits(prompt, rng):
+    if "\nIs every part of the question done?\n" in prompt:
+        return judged(prompt, rng)
     goal, done, options = parse(prompt)
     left = remaining(goal, done)
     weight = {}

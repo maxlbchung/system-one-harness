@@ -39,6 +39,10 @@ VARIANTS = {
     "state": {"SHOW_STATE": True},
     "instructions": {"INSTRUCTIONS": INSTRUCTIONS},
     "resume": {"RESUME": True},
+    "effects": {"SHOW_EFFECTS": True},
+    "state+effects": {"SHOW_STATE": True, "SHOW_EFFECTS": True},
+    "done-check": {"DONE_CHECK": True},
+    "state+done-check": {"SHOW_STATE": True, "DONE_CHECK": True},
 }
 
 
@@ -131,16 +135,21 @@ def attempt(app, goal, wanted, check, seed, variant):
             calls[0] += 1
         return harness.ask_openjev(*args, harness.MODEL)
 
+    def judge(*args):
+        if REAL:
+            calls[0] += 1
+        return harness.judge_openjev(*args, harness.MODEL)
+
     harness.actions = actions
     started = time.monotonic()
     try:
-        ending = harness.run(goal, root, ask, permit=lambda verb, control, text: control.ProcessId in mine, on_event=on_event)
+        ending = harness.run(goal, root, ask, permit=lambda verb, control, text: control.ProcessId in mine, on_event=on_event, judge=judge)
     finally:
         harness.actions = real_actions
     success = benchmark.reached(wanted, done) and (not check or check())
-    reason = ending if ending != "quit" or not stops else ("low confidence" if stops[0].startswith("confidence") else stops[0].removeprefix("reached the ").split(" of ")[0])
-    if not success and reason == "quit":
-        reason = "quit early" if not benchmark.reached(wanted, done) else "wrong result"
+    reason = ending if ending != "quit" or not stops else ("low confidence" if stops[0].startswith("confidence") else "judged done" if stops[0].startswith("judged") else stops[0].removeprefix("reached the ").split(" of ")[0])
+    if not success and reason in ("quit", "judged done"):
+        reason = f"{reason} early" if not benchmark.reached(wanted, done) else "wrong result"
     if REAL:
         seconds = time.monotonic() - started
         print(f"      {'OK  ' if success else 'MISS'} {variant} {reason} {calls[0]} calls {seconds:.0f}s {[d[:40] for d in done]} | {goal}", flush=True)
@@ -174,14 +183,14 @@ def report(goals, results, variants):
             endings = collections.Counter(r[3] for r in runs if not r[0])
             calls = sum(r[2] for r in runs) / len(runs)
             misses = ", ".join(f"{k} {n}" for k, n in endings.most_common()) or "-"
-            print(f"  {v:13} {benchmark.row([r[:2] for r in runs], len(wanted))}, {calls:.1f} calls | misses: {misses}")
+            print(f"  {v:16} {benchmark.row([r[:2] for r in runs], len(wanted))}, {calls:.1f} calls | misses: {misses}")
 
 
 def totals(title, goals, results, variants):
     print(title)
     for v in variants:
         runs = [r for _, goal, _, _ in goals for r in results[goal, v]]
-        print(f"  {v:13} {sum(r[0] for r in runs)}/{len(runs)} succeeded, {sum(r[2] for r in runs) / len(runs):.1f} calls per run")
+        print(f"  {v:16} {sum(r[0] for r in runs)}/{len(runs)} succeeded, {sum(r[2] for r in runs) / len(runs):.1f} calls per run")
 
 
 def main(repeats, variants):

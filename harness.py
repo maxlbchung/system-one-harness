@@ -42,6 +42,11 @@ INSTRUCTIONS = "Choose the best next step. Don't repeat what's done. Quit only w
 SHOW_STATE = False  # Labels show toggle states and values, and the location lists what it shows but can't be acted on.
 RESUME = False  # After an action, carry on from where it happened, with a way back up, instead of from the desktop.
 MAX_SHOWN = 5
+SHOW_EFFECTS = False  # The history says what each action changed in its window, read from before and after snapshots.
+DONE_CHECK = False  # Stopping is its own yes/no question after each action, not a quit option among the others.
+SNAPSHOT_LIMIT, MAX_EFFECTS = 300, 3  # Elements read per snapshot, changes shown per action.
+DONE_QUESTION = "Is every part of the question done?"
+DONE_ANSWERS = {"yes": "Every step the question asks for is done.", "no": "Something the question asks for is still left to do."}
 
 VERBS = {
     "quit": "Do nothing more and stop.",
@@ -235,18 +240,13 @@ def options(node, text=None):
     return dict(list(found.items())[:MAX_OPTIONS])
 
 
-def ask_openjev(goal, path, opts, text, done, model):
-    """One stateless choice, read from the probabilities of the answer letter.
-
-    Shuffled because this kind of model leans toward the first option. Scores are each
-    option's share of the probability, and options outside the model's top 20 have none.
-    """
-    names = random.sample(list(opts), len(opts))
-    letters = dict(zip(LETTERS, names))
-    listing = "\n".join(f"[{k}] {n}: {describe(opts[n][0], opts[n][1], text)}" for k, n in letters.items())
+def history(done):
     steps = [" > ".join(nodes) for nodes in done]  # The nodes picked on the way to each action, not just the action.
-    finished = f"Done so far: {'; '.join(steps)}\n" if done else ""
-    prompt = f"State:\n{finished}Location: {' > '.join(path)}\n\nQuestion: {goal}\n{INSTRUCTIONS}\nOptions:\n{listing}"
+    return f"Done so far: {'; '.join(steps)}\n" if done else ""
+
+
+def choose(prompt, letters, model):
+    """The model's pick among lettered names, read from the probabilities of its one-token answer."""
     body = {
         "model": model,
         "stream": False,
@@ -262,13 +262,62 @@ def ask_openjev(goal, path, opts, text, done, model):
         top = json.load(response)["logprobs"][0]["top_logprobs"]
     probs = {t["token"]: math.exp(t["logprob"]) for t in top if t["token"] in letters}
     best, total = max(probs, key=probs.get), sum(probs.values())
-    share, chance = probs[best] / total, 1 / len(names)
+    share, chance = probs[best] / total, 1 / len(letters)
     return {
         "choice": letters[best],
         # Same confidence as Jev: 0 for an even spread, 1 for a single peak.
         "confidence": (share - chance) / (1 - chance),
         "scores": {letters[k]: p / total for k, p in probs.items()},
     }
+
+
+def ask_openjev(goal, path, opts, text, done, model):
+    """One stateless choice among the options.
+
+    Shuffled because this kind of model leans toward the first option. Scores are each
+    option's share of the probability, and options outside the model's top 20 have none.
+    """
+    letters = dict(zip(LETTERS, random.sample(list(opts), len(opts))))
+    listing = "\n".join(f"[{k}] {n}: {describe(opts[n][0], opts[n][1], text)}" for k, n in letters.items())
+    prompt = f"State:\n{history(done)}Location: {' > '.join(path)}\n\nQuestion: {goal}\n{INSTRUCTIONS}\nOptions:\n{listing}"
+    return choose(prompt, letters, model)
+
+
+def judge_openjev(goal, done, model):
+    """Whether the question is done, as its own yes/no choice. Shuffled like any other."""
+    letters = dict(zip(LETTERS, random.sample(list(DONE_ANSWERS), 2)))
+    listing = "\n".join(f"[{k}] {n}: {DONE_ANSWERS[n]}" for k, n in letters.items())
+    prompt = f"State:\n{history(done)}\nQuestion: {goal}\n{DONE_QUESTION}\nOptions:\n{listing}"
+    answer = choose(prompt, letters, model)
+    return answer | {"done": answer["choice"] == "yes"}
+
+
+def snapshot(window):
+    """Element id -> (type, name, state) for what the agent can see in window, breadth first."""
+    found, queue = {}, [window]
+    while queue and len(found) < SNAPSHOT_LIMIT:
+        node = queue.pop(0)
+        try:
+            found[tuple(node.GetRuntimeId())] = (node.ControlTypeName.removesuffix("Control"), " ".join(node.Name.split())[:60], state(node).strip())
+        except COMError:  # The element vanished while it was read.
+            continue
+        queue += children(node)
+    return found
+
+
+def effects(before, after):
+    """What changed between two snapshots, in words, for elements in both."""
+    changes = []
+    for key, (kind, name, was) in before.items():
+        if key in after and after[key] != (kind, name, was):
+            _, new_name, now = after[key]
+            if new_name == name:
+                changes.append(f'{kind} "{name}" {was or "empty"} -> {now or "empty"}')
+            else:
+                changes.append(f'{kind} "{name}"{" " + was if was else ""} -> "{new_name}"{" " + now if now else ""}')
+    if not changes:
+        return " (nothing visible changed)"
+    return f" (changed: {'; '.join(changes[:MAX_EFFECTS])})"
 
 
 def installed_models():
@@ -300,13 +349,15 @@ def ask_terminal(verb, control, text):
     return input(f"{request(verb, control, text)} [y/N] ").strip().lower() == "y"
 
 
-def walk(goal, root, ask, text, permit, on_event, cancelled, undo):
+def walk(goal, root, ask, text, permit, on_event, cancelled, undo, judge):
     nodes, path, done = [root], [label(root)], []
     expanded_at = None  # Depth of the first dropdown this walk opened, whose items go when it closes.
     for _ in range(MAX_STEPS):
         node = nodes[-1]
         on_event({"kind": "at", "node": node})
         opts = options(node, text)
+        if DONE_CHECK and judge:  # Stopping is asked separately, after each action.
+            del opts["quit"]
         if RESUME and len(nodes) > 1:
             opts = {"quit": opts.pop("quit"), "back": ("back", None, None), **opts}
         moves = [option[0] for option in opts.values() if option[0] not in ("quit", "back")]
@@ -370,25 +421,38 @@ def walk(goal, root, ask, text, permit, on_event, cancelled, undo):
                 if reverse is collapse and is_collapsed(dropdown):
                     dropdown.GetPattern(uia.PatternId.ExpandCollapsePattern).Expand()
             finished = request(verb, control, text).removesuffix("?")  # Read first: acting can remove the element.
+            window = nodes[1] if len(nodes) > 1 else root
+            before = snapshot(window) if SHOW_EFFECTS else None
             act(text) if verb == "type" else act()
             if SHOW_STATE:  # Read again, so the history says what it's set to now.
                 try:
                     finished = request(verb, control, text).removesuffix("?")
                 except COMError:
                     pass
-            done.append([*path[1:], finished])  # The root is where every walk starts, so nothing picked it.
-            on_event({"kind": "done", "action": finished})
             # The window it acted in stays up, but a dropdown should close behind its pick.
             for opened, reverse in undo:
                 if reverse is collapse:
                     collapse(opened)
             undo.clear()
+            effect = ""
+            if SHOW_EFFECTS:
+                time.sleep(ACTION_WAIT)
+                effect = effects(before, snapshot(window))
+            done.append([*path[1:], finished + effect])  # The root is where every walk starts, so nothing picked it.
+            on_event({"kind": "done", "action": finished, "effect": effect})
+            if DONE_CHECK and judge:
+                verdict = judge(goal, done)
+                on_event({"kind": "check", **verdict})
+                if verdict["done"]:
+                    on_event({"kind": "stop", "reason": "judged the question done"})
+                    return "quit"
             if len(done) >= MAX_ACTIONS:
                 on_event({"kind": "stop", "reason": f"reached the action limit of {MAX_ACTIONS}"})
                 return "quit"
             if verb == "type":
                 text = None  # There's one text per prompt, so it can't be typed again.
-            time.sleep(ACTION_WAIT)
+            if not SHOW_EFFECTS:  # Effects waited already.
+                time.sleep(ACTION_WAIT)
             if RESUME:
                 if expanded_at is not None:  # The dropdown closed, so carry on from where it was.
                     del nodes[expanded_at:], path[expanded_at:]
@@ -404,16 +468,17 @@ def walk(goal, root, ask, text, permit, on_event, cancelled, undo):
     return "quit"
 
 
-def run(goal, root, ask, text=None, permit=lambda *_: True, on_event=print_event, cancelled=lambda: False):
+def run(goal, root, ask, text=None, permit=lambda *_: True, on_event=print_event, cancelled=lambda: False, judge=None):
     """Keep acting until the model quits or a limit is reached. Returns "quit", "denied" or "cancelled".
 
     Every prompt starts with nothing done, and nothing carries over to the next one.
     on_event gets dicts of kind "at" (the agent reached a node), "pick" (a decision), "done" (an action completed),
     "restart" (a new walk from the desktop) and "stop" (why it gave up). permit(verb, control, text) can refuse an action.
+    With DONE_CHECK, judge(goal, done) decides after each action whether to stop, and sends "check" events.
     """
     undo = []
     try:
-        return walk(goal, root, ask, text, permit, on_event, cancelled, undo)
+        return walk(goal, root, ask, text, permit, on_event, cancelled, undo, judge)
     finally:
         # Looking around on the way to an action that never came leaves nothing behind.
         for control, reverse in reversed(undo):
@@ -429,4 +494,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     permit = (lambda *_: True) if args.yes else ask_terminal
     with uia.UIAutomationInitializerInThread():
-        run(args.goal, uia.GetRootControl(), lambda *a: ask_openjev(*a, args.model), args.text, permit)
+        run(args.goal, uia.GetRootControl(), lambda *a: ask_openjev(*a, args.model), args.text, permit,
+            judge=lambda *a: judge_openjev(*a, args.model))

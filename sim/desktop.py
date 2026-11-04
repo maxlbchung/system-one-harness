@@ -210,16 +210,24 @@ class Calculator:
     def __init__(self):
         self.expression = ""
         self.display = Control("Display is 0", "Text", id="CalculatorResults")
+        self.history = Control("", "Text", id="CalculatorExpression")  # Like Windows: "Expression is 1 +".
 
     def show(self, value):
         self.display.Name = f"Display is {value}"
+
+    def written(self, expression):
+        self.history.Name = f"Expression is {' '.join(re.findall(r'[0-9.]+|[-+*/=]', expression))}" if expression else ""
 
     def press(self, control):
         name = control.Name
         if name in self.NAMES:
             self.expression += self.NAMES[name]
-            self.show(re.split(r"[-+*/]", self.expression)[-1] or self.expression[-1])
+            numbers = [n for n in re.split(r"[-+*/]", self.expression) if n]
+            self.show(numbers[-1] if numbers else 0)  # After an operator the display keeps the number.
+            operator = max(self.expression.rfind(o) for o in "+-*/")
+            self.written(self.expression[:operator + 1] if operator >= 0 else "")
         elif name == "Equals":
+            self.written(self.expression + "=")
             try:
                 result = eval(self.expression or "0", {"__builtins__": {}})  # Only digits and operators reach here.
                 result = int(result) if float(result).is_integer() else round(result, 6)
@@ -229,6 +237,7 @@ class Calculator:
             self.show(result)
         elif name in ("Clear", "Clear entry"):
             self.expression = ""
+            self.written("")
             self.show(0)
 
     def tree(self):
@@ -241,6 +250,7 @@ class Calculator:
                                   Control("Open Navigation", "Button", id="TogglePaneButton", invoke=noop),
                                   Control("Standard Calculator mode", "Text", id="Header"),
                                   Control("Keep on top", "Button", id="NormalAlwaysOnTopButton", invoke=noop),
+                                  self.history,
                                   self.display,
                                   Control("Memory controls", "Group",
                                           *[Control(n, "Button", id=f"Memory{n.split()[-1]}", invoke=noop) for n in

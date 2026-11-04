@@ -431,4 +431,42 @@ assert seen[0][0] == ['Pane "Desktop"', 'Pane "Panel" showing Status: idle'] and
 assert seen[1][2] == [['Pane "Panel"', 'Toggle Pane "Wifi" (on)']]
 harness.SHOW_STATE = False
 
+# With SHOW_EFFECTS, each action's history entry says what it changed in its window.
+harness.SHOW_EFFECTS = True
+ask = scripted('toggle Pane "Wifi"', "quit")
+assert harness.run("turn on wifi", Node("Desktop", Node("Panel", Switch("Wifi"), Text("Status: idle"))), ask) == "quit"
+assert ask.done[1] == [['Pane "Panel"', 'Toggle Pane "Wifi" (changed: Pane "Wifi" (off) -> (on))']]
+quiet = Node("Panel", Node("Ping", acts={"invoke": lambda: None}))
+ask = scripted('invoke Pane "Ping"', "quit")
+harness.run("ping", Node("Desktop", quiet), ask)
+assert ask.done[1] == [['Pane "Panel"', 'Click Pane "Ping" (nothing visible changed)']]
+harness.SHOW_EFFECTS = False
+
+# With DONE_CHECK, quit isn't an option: a separate judge decides after each action whether to stop.
+clicks.clear()
+events, verdicts = [], [False, True]
+harness.DONE_CHECK = True
+ask = scripted(OPEN, SAVE, OPEN, SAVE)
+judge = lambda goal, done: {"done": verdicts[len(done) - 1], "confidence": 0.8}
+assert harness.run("save twice", root, ask, on_event=events.append, judge=judge) == "quit"
+assert clicks == ["save"] * 2 and all("quit" not in seen_opts for seen_opts in ask.seen)
+assert [e["done"] for e in events if e["kind"] == "check"] == [False, True] and events[-1]["reason"] == "judged the question done"
+harness.DONE_CHECK = False
+
+
+def judging(request, timeout):
+    prompt = json.loads(request.data)["messages"][0]["content"]
+    prompts.append(prompt)
+    yes = next(line[1] for line in prompt.splitlines() if line.startswith("[") and "] yes:" in line)
+    no = "A" if yes == "B" else "B"
+    top = [{"token": yes, "logprob": math.log(0.8)}, {"token": no, "logprob": math.log(0.2)}]
+    return io.BytesIO(json.dumps({"logprobs": [{"top_logprobs": top}]}).encode())
+
+
+# The judge sees the history and the question, and reads yes or no from the letters.
+urllib.request.urlopen = judging
+verdict = harness.judge_openjev("save it", [["App", "Click X"]], "m")
+assert verdict["done"] and abs(verdict["confidence"] - 0.6) < 1e-9
+assert prompts[-1].startswith("State:\nDone so far: App > Click X\n\nQuestion: save it\nIs every part of the question done?\nOptions:\n[")
+
 print("ok")

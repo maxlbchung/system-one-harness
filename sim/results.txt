@@ -1,79 +1,135 @@
-settings: floor 0.25, action limit 10, step limit 60, proxy model, noise 1.0, 20 repeats, variants baseline, state, instructions, resume
+settings: floor 0.25, action limit 10, step limit 60, proxy model, noise 1.0, 20 repeats, variants baseline, state, instructions, resume, effects, state+effects, done-check, state+done-check
 
 ===== benchmark.py goals =====
 press the Select button in Character Map
-  baseline      20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.1 calls | misses: -
-  state         20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.1 calls | misses: -
-  instructions  20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.1 calls | misses: -
-  resume        20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  baseline         20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.1 calls | misses: -
+  state            20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.1 calls | misses: -
+  instructions     20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.1 calls | misses: -
+  resume           20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  effects          20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.1 calls | misses: -
+  state+effects    20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.1 calls | misses: -
+  done-check       20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  state+done-check 20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
 set the snip delay to 5 seconds in Snipping Tool
-  baseline      19/20 succeeded, 17 exact, 1.11 turns (optimal 1), 5.5 calls | misses: low confidence 1
-  state         19/20 succeeded, 17 exact, 1.11 turns (optimal 1), 5.5 calls | misses: low confidence 1
-  instructions  19/20 succeeded, 17 exact, 1.11 turns (optimal 1), 5.5 calls | misses: low confidence 1
-  resume        19/20 succeeded, 14 exact, 1.37 turns (optimal 1), 5.7 calls | misses: low confidence 1
+  baseline         19/20 succeeded, 17 exact, 1.11 turns (optimal 1), 5.5 calls | misses: low confidence 1
+  state            19/20 succeeded, 17 exact, 1.11 turns (optimal 1), 5.5 calls | misses: low confidence 1
+  instructions     19/20 succeeded, 17 exact, 1.11 turns (optimal 1), 5.5 calls | misses: low confidence 1
+  resume           19/20 succeeded, 14 exact, 1.37 turns (optimal 1), 5.7 calls | misses: low confidence 1
+  effects          19/20 succeeded, 17 exact, 1.11 turns (optimal 1), 5.5 calls | misses: low confidence 1
+  state+effects    19/20 succeeded, 17 exact, 1.11 turns (optimal 1), 5.5 calls | misses: low confidence 1
+  done-check       19/20 succeeded, 15 exact, 1.21 turns (optimal 1), 6.7 calls | misses: low confidence 1
+  state+done-check 19/20 succeeded, 15 exact, 1.21 turns (optimal 1), 6.7 calls | misses: low confidence 1
 turn on video capture mode in Snipping Tool
-  baseline      19/20 succeeded, 19 exact, 1.00 turns (optimal 1), 5.5 calls | misses: low confidence 1
-  state         19/20 succeeded, 19 exact, 1.00 turns (optimal 1), 5.5 calls | misses: low confidence 1
-  instructions  19/20 succeeded, 19 exact, 1.00 turns (optimal 1), 5.5 calls | misses: low confidence 1
-  resume        16/20 succeeded, 9 exact, 1.94 turns (optimal 1), 6.2 calls | misses: low confidence 4
+  baseline         19/20 succeeded, 19 exact, 1.00 turns (optimal 1), 5.5 calls | misses: low confidence 1
+  state            19/20 succeeded, 19 exact, 1.00 turns (optimal 1), 5.5 calls | misses: low confidence 1
+  instructions     19/20 succeeded, 19 exact, 1.00 turns (optimal 1), 5.5 calls | misses: low confidence 1
+  resume           16/20 succeeded, 9 exact, 1.94 turns (optimal 1), 6.2 calls | misses: low confidence 4
+  effects          19/20 succeeded, 19 exact, 1.00 turns (optimal 1), 5.5 calls | misses: low confidence 1
+  state+effects    19/20 succeeded, 19 exact, 1.00 turns (optimal 1), 5.5 calls | misses: low confidence 1
+  done-check       20/20 succeeded, 19 exact, 1.05 turns (optimal 1), 6.2 calls | misses: -
+  state+done-check 20/20 succeeded, 19 exact, 1.05 turns (optimal 1), 6.2 calls | misses: -
 set the font to Arial Black in Character Map and then press the Select button
-  baseline      19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 6.0 calls | misses: low confidence 1
-  state         19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 6.0 calls | misses: low confidence 1
-  instructions  19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 6.0 calls | misses: low confidence 1
-  resume        20/20 succeeded, 20 exact, 2.00 turns (optimal 2), 5.0 calls | misses: -
+  baseline         19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 6.0 calls | misses: low confidence 1
+  state            19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 6.0 calls | misses: low confidence 1
+  instructions     19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 6.0 calls | misses: low confidence 1
+  resume           20/20 succeeded, 20 exact, 2.00 turns (optimal 2), 5.0 calls | misses: -
+  effects          19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 6.0 calls | misses: low confidence 1
+  state+effects    19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 6.0 calls | misses: low confidence 1
+  done-check       19/20 succeeded, 18 exact, 2.05 turns (optimal 2), 7.2 calls | misses: denied 1
+  state+done-check 18/20 succeeded, 18 exact, 2.00 turns (optimal 2), 7.2 calls | misses: denied 1, judged done early 1
 set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
-  baseline      16/20 succeeded, 14 exact, 2.12 turns (optimal 2), 10.4 calls | misses: low confidence 3, quit early 1
-  state         16/20 succeeded, 14 exact, 2.12 turns (optimal 2), 10.4 calls | misses: low confidence 3, quit early 1
-  instructions  16/20 succeeded, 14 exact, 2.12 turns (optimal 2), 10.4 calls | misses: low confidence 3, quit early 1
-  resume        18/20 succeeded, 14 exact, 2.22 turns (optimal 2), 7.7 calls | misses: quit early 2
+  baseline         16/20 succeeded, 14 exact, 2.12 turns (optimal 2), 10.4 calls | misses: low confidence 3, quit early 1
+  state            16/20 succeeded, 14 exact, 2.12 turns (optimal 2), 10.4 calls | misses: low confidence 3, quit early 1
+  instructions     16/20 succeeded, 14 exact, 2.12 turns (optimal 2), 10.4 calls | misses: low confidence 3, quit early 1
+  resume           18/20 succeeded, 14 exact, 2.22 turns (optimal 2), 7.7 calls | misses: quit early 2
+  effects          16/20 succeeded, 14 exact, 2.12 turns (optimal 2), 10.4 calls | misses: low confidence 3, quit early 1
+  state+effects    16/20 succeeded, 14 exact, 2.12 turns (optimal 2), 10.4 calls | misses: low confidence 3, quit early 1
+  done-check       18/20 succeeded, 15 exact, 2.17 turns (optimal 2), 11.7 calls | misses: judged done early 1, low confidence 1
+  state+done-check 18/20 succeeded, 15 exact, 2.17 turns (optimal 2), 11.7 calls | misses: judged done early 1, low confidence 1
 press the Select button in Character Map, then press Select again
-  baseline      19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 5.0 calls | misses: denied 1
-  state         19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 5.0 calls | misses: denied 1
-  instructions  19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 5.0 calls | misses: denied 1
-  resume        20/20 succeeded, 20 exact, 2.00 turns (optimal 2), 4.0 calls | misses: -
+  baseline         19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 5.0 calls | misses: denied 1
+  state            19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 5.0 calls | misses: denied 1
+  instructions     19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 5.0 calls | misses: denied 1
+  resume           20/20 succeeded, 20 exact, 2.00 turns (optimal 2), 4.0 calls | misses: -
+  effects          19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 5.0 calls | misses: denied 1
+  state+effects    19/20 succeeded, 19 exact, 2.00 turns (optimal 2), 5.0 calls | misses: denied 1
+  done-check       20/20 succeeded, 20 exact, 2.00 turns (optimal 2), 6.0 calls | misses: -
+  state+done-check 20/20 succeeded, 20 exact, 2.00 turns (optimal 2), 6.0 calls | misses: -
 in Calculator, press 1 + 1 = to find the answer
-  baseline      12/20 succeeded, 12 exact, 4.00 turns (optimal 4), 15.3 calls | misses: denied 5, quit early 2, low confidence 1
-  state         12/20 succeeded, 12 exact, 4.00 turns (optimal 4), 15.3 calls | misses: denied 5, quit early 2, low confidence 1
-  instructions  12/20 succeeded, 12 exact, 4.00 turns (optimal 4), 15.3 calls | misses: denied 5, quit early 2, low confidence 1
-  resume        0/20 succeeded, 0 exact, - turns (optimal 4), 6.4 calls | misses: low confidence 19, denied 1
+  baseline         12/20 succeeded, 12 exact, 4.00 turns (optimal 4), 15.3 calls | misses: denied 5, quit early 2, low confidence 1
+  state            12/20 succeeded, 12 exact, 4.00 turns (optimal 4), 15.3 calls | misses: denied 5, quit early 2, low confidence 1
+  instructions     12/20 succeeded, 12 exact, 4.00 turns (optimal 4), 15.3 calls | misses: denied 5, quit early 2, low confidence 1
+  resume           0/20 succeeded, 0 exact, - turns (optimal 4), 6.4 calls | misses: low confidence 19, denied 1
+  effects          0/20 succeeded, 0 exact, - turns (optimal 4), 12.8 calls | misses: quit early 18, denied 2
+  state+effects    0/20 succeeded, 0 exact, - turns (optimal 4), 12.8 calls | misses: quit early 18, denied 2
+  done-check       10/20 succeeded, 10 exact, 4.00 turns (optimal 4), 17.6 calls | misses: low confidence 4, judged done early 3, denied 3
+  state+done-check 10/20 succeeded, 10 exact, 4.00 turns (optimal 4), 17.6 calls | misses: low confidence 4, judged done early 3, denied 3
 
 ===== extra goals =====
 turn on Advanced view in Character Map
-  baseline      20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
-  state         20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
-  instructions  20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
-  resume        20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  baseline         20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  state            20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  instructions     20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  resume           20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  effects          20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  state+effects    20/20 succeeded, 20 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  done-check       20/20 succeeded, 19 exact, 1.05 turns (optimal 1), 3.2 calls | misses: -
+  state+done-check 20/20 succeeded, 19 exact, 1.05 turns (optimal 1), 3.2 calls | misses: -
 set the snipping area to Full screen in Snipping Tool
-  baseline      15/20 succeeded, 14 exact, 1.07 turns (optimal 1), 5.8 calls | misses: low confidence 4, denied 1
-  state         15/20 succeeded, 14 exact, 1.07 turns (optimal 1), 5.8 calls | misses: low confidence 4, denied 1
-  instructions  15/20 succeeded, 14 exact, 1.07 turns (optimal 1), 5.8 calls | misses: low confidence 4, denied 1
-  resume        16/20 succeeded, 16 exact, 1.00 turns (optimal 1), 4.8 calls | misses: low confidence 4
+  baseline         15/20 succeeded, 14 exact, 1.07 turns (optimal 1), 5.8 calls | misses: low confidence 4, denied 1
+  state            15/20 succeeded, 14 exact, 1.07 turns (optimal 1), 5.8 calls | misses: low confidence 4, denied 1
+  instructions     15/20 succeeded, 14 exact, 1.07 turns (optimal 1), 5.8 calls | misses: low confidence 4, denied 1
+  resume           16/20 succeeded, 16 exact, 1.00 turns (optimal 1), 4.8 calls | misses: low confidence 4
+  effects          15/20 succeeded, 14 exact, 1.07 turns (optimal 1), 5.8 calls | misses: low confidence 4, denied 1
+  state+effects    15/20 succeeded, 14 exact, 1.07 turns (optimal 1), 5.8 calls | misses: low confidence 4, denied 1
+  done-check       14/20 succeeded, 5 exact, 1.64 turns (optimal 1), 7.3 calls | misses: low confidence 4, wrong result 2
+  state+done-check 14/20 succeeded, 5 exact, 1.64 turns (optimal 1), 7.3 calls | misses: low confidence 4, wrong result 2
 in Calculator, press 9 - 4 = to find the answer
-  baseline      13/20 succeeded, 12 exact, 4.08 turns (optimal 4), 16.4 calls | misses: quit early 3, denied 2, low confidence 2
-  state         13/20 succeeded, 12 exact, 4.08 turns (optimal 4), 16.4 calls | misses: quit early 3, denied 2, low confidence 2
-  instructions  13/20 succeeded, 12 exact, 4.08 turns (optimal 4), 16.4 calls | misses: quit early 3, denied 2, low confidence 2
-  resume        0/20 succeeded, 0 exact, - turns (optimal 4), 6.7 calls | misses: low confidence 19, quit early 1
+  baseline         13/20 succeeded, 12 exact, 4.08 turns (optimal 4), 16.4 calls | misses: quit early 3, denied 2, low confidence 2
+  state            13/20 succeeded, 12 exact, 4.08 turns (optimal 4), 16.4 calls | misses: quit early 3, denied 2, low confidence 2
+  instructions     13/20 succeeded, 12 exact, 4.08 turns (optimal 4), 16.4 calls | misses: quit early 3, denied 2, low confidence 2
+  resume           0/20 succeeded, 0 exact, - turns (optimal 4), 6.7 calls | misses: low confidence 19, quit early 1
+  effects          13/20 succeeded, 12 exact, 4.08 turns (optimal 4), 16.4 calls | misses: quit early 3, denied 2, low confidence 2
+  state+effects    13/20 succeeded, 12 exact, 4.08 turns (optimal 4), 16.4 calls | misses: quit early 3, denied 2, low confidence 2
+  done-check       7/20 succeeded, 7 exact, 4.00 turns (optimal 4), 18.5 calls | misses: judged done early 8, low confidence 4, denied 1
+  state+done-check 7/20 succeeded, 7 exact, 4.00 turns (optimal 4), 18.5 calls | misses: judged done early 8, low confidence 4, denied 1
 in Calculator, press 2 + 3 + 4 = to find the answer
-  baseline      5/20 succeeded, 5 exact, 6.00 turns (optimal 6), 24.5 calls | misses: quit early 13, low confidence 2
-  state         5/20 succeeded, 5 exact, 6.00 turns (optimal 6), 24.5 calls | misses: quit early 13, low confidence 2
-  instructions  5/20 succeeded, 5 exact, 6.00 turns (optimal 6), 24.5 calls | misses: quit early 13, low confidence 2
-  resume        0/20 succeeded, 0 exact, - turns (optimal 6), 7.2 calls | misses: low confidence 19, quit early 1
+  baseline         5/20 succeeded, 5 exact, 6.00 turns (optimal 6), 24.5 calls | misses: quit early 13, low confidence 2
+  state            5/20 succeeded, 5 exact, 6.00 turns (optimal 6), 24.5 calls | misses: quit early 13, low confidence 2
+  instructions     5/20 succeeded, 5 exact, 6.00 turns (optimal 6), 24.5 calls | misses: quit early 13, low confidence 2
+  resume           0/20 succeeded, 0 exact, - turns (optimal 6), 7.2 calls | misses: low confidence 19, quit early 1
+  effects          5/20 succeeded, 5 exact, 6.00 turns (optimal 6), 24.5 calls | misses: quit early 13, low confidence 2
+  state+effects    5/20 succeeded, 5 exact, 6.00 turns (optimal 6), 24.5 calls | misses: quit early 13, low confidence 2
+  done-check       8/20 succeeded, 8 exact, 6.00 turns (optimal 6), 29.9 calls | misses: judged done early 11, low confidence 1
+  state+done-check 8/20 succeeded, 8 exact, 6.00 turns (optimal 6), 29.9 calls | misses: judged done early 11, low confidence 1
 set the font to Wingdings in Character Map
-  baseline      0/20 succeeded, 0 exact, - turns (optimal 1), 3.6 calls | misses: low confidence 20
-  state         0/20 succeeded, 0 exact, - turns (optimal 1), 3.6 calls | misses: low confidence 20
-  instructions  0/20 succeeded, 0 exact, - turns (optimal 1), 3.6 calls | misses: low confidence 20
-  resume        0/20 succeeded, 0 exact, - turns (optimal 1), 3.2 calls | misses: low confidence 20
+  baseline         0/20 succeeded, 0 exact, - turns (optimal 1), 3.6 calls | misses: low confidence 20
+  state            0/20 succeeded, 0 exact, - turns (optimal 1), 3.6 calls | misses: low confidence 20
+  instructions     0/20 succeeded, 0 exact, - turns (optimal 1), 3.6 calls | misses: low confidence 20
+  resume           0/20 succeeded, 0 exact, - turns (optimal 1), 3.2 calls | misses: low confidence 20
+  effects          0/20 succeeded, 0 exact, - turns (optimal 1), 3.6 calls | misses: low confidence 20
+  state+effects    0/20 succeeded, 0 exact, - turns (optimal 1), 3.6 calls | misses: low confidence 20
+  done-check       0/20 succeeded, 0 exact, - turns (optimal 1), 4.0 calls | misses: low confidence 20
+  state+done-check 0/20 succeeded, 0 exact, - turns (optimal 1), 4.0 calls | misses: low confidence 20
 
 benchmark.py multi-step goals
-  baseline      66/80 succeeded, 9.2 calls per run
-  state         66/80 succeeded, 9.2 calls per run
-  instructions  66/80 succeeded, 9.2 calls per run
-  resume        58/80 succeeded, 5.8 calls per run
+  baseline         66/80 succeeded, 9.2 calls per run
+  state            66/80 succeeded, 9.2 calls per run
+  instructions     66/80 succeeded, 9.2 calls per run
+  resume           58/80 succeeded, 5.8 calls per run
+  effects          54/80 succeeded, 8.6 calls per run
+  state+effects    54/80 succeeded, 8.6 calls per run
+  done-check       67/80 succeeded, 10.6 calls per run
+  state+done-check 66/80 succeeded, 10.6 calls per run
 all goals
-  baseline      177/240 succeeded, 8.7 calls per run
-  state         177/240 succeeded, 8.7 calls per run
-  instructions  177/240 succeeded, 8.7 calls per run
-  resume        149/240 succeeded, 5.2 calls per run
+  baseline         177/240 succeeded, 8.7 calls per run
+  state            177/240 succeeded, 8.7 calls per run
+  instructions     177/240 succeeded, 8.7 calls per run
+  resume           149/240 succeeded, 5.2 calls per run
+  effects          165/240 succeeded, 8.5 calls per run
+  state+effects    165/240 succeeded, 8.5 calls per run
+  done-check       175/240 succeeded, 10.1 calls per run
+  state+done-check 174/240 succeeded, 10.1 calls per run
 
 ===== baseline success on benchmark.py goals by model noise (6 repeats each) =====
  noise  floor 0.25  floor 0.5
