@@ -1,0 +1,297 @@
+settings: floor 0.25, action limit 10, step limit 60, real model openjev-flash-9b, 3 repeats, variants baseline, state, effects, state+effects, done-check, state+done-check
+
+===== benchmark.py goals =====
+press the Select button in Character Map
+  baseline         3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  state            3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  effects          3/3 succeeded, 2 exact, 1.33 turns (optimal 1), 3.7 calls | misses: -
+  state+effects    3/3 succeeded, 2 exact, 1.33 turns (optimal 1), 3.7 calls | misses: -
+  done-check       3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  state+done-check 3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+set the snip delay to 5 seconds in Snipping Tool
+  baseline         3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  state            3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  effects          3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  state+effects    3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  done-check       3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  state+done-check 3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+turn on video capture mode in Snipping Tool
+  baseline         2/3 succeeded, 0 exact, 7.00 turns (optimal 1), 24.7 calls | misses: action limit 1
+  state            3/3 succeeded, 0 exact, 5.67 turns (optimal 1), 18.0 calls | misses: -
+  effects          3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 4.3 calls | misses: -
+  state+effects    2/3 succeeded, 0 exact, 5.00 turns (optimal 1), 17.0 calls | misses: wrong result 1
+  done-check       2/3 succeeded, 0 exact, 2.00 turns (optimal 1), 19.3 calls | misses: action limit 1
+  state+done-check 3/3 succeeded, 0 exact, 2.67 turns (optimal 1), 11.0 calls | misses: -
+set the font to Arial Black in Character Map and then press the Select button
+  baseline         3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 6.0 calls | misses: -
+  state            2/3 succeeded, 2 exact, 2.00 turns (optimal 2), 5.3 calls | misses: quit early 1
+  effects          3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 6.0 calls | misses: -
+  state+effects    3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 6.0 calls | misses: -
+  done-check       3/3 succeeded, 1 exact, 2.67 turns (optimal 2), 9.0 calls | misses: -
+  state+done-check 3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 7.0 calls | misses: -
+set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+  baseline         3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 9.0 calls | misses: -
+  state            3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 9.0 calls | misses: -
+  effects          3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 9.0 calls | misses: -
+  state+effects    3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 9.0 calls | misses: -
+  done-check       3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 10.0 calls | misses: -
+  state+done-check 3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 10.0 calls | misses: -
+press the Select button in Character Map, then press Select again
+  baseline         0/3 succeeded, 0 exact, - turns (optimal 2), 3.7 calls | misses: quit early 3
+  state            0/3 succeeded, 0 exact, - turns (optimal 2), 3.7 calls | misses: quit early 3
+  effects          2/3 succeeded, 0 exact, 3.00 turns (optimal 2), 5.7 calls | misses: quit early 1
+  state+effects    2/3 succeeded, 0 exact, 3.00 turns (optimal 2), 6.3 calls | misses: quit early 1
+  done-check       0/3 succeeded, 0 exact, - turns (optimal 2), 6.0 calls | misses: judged done early 3
+  state+done-check 0/3 succeeded, 0 exact, - turns (optimal 2), 6.0 calls | misses: judged done early 3
+in Calculator, press 1 + 1 = to find the answer
+  baseline         1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 15.7 calls | misses: wrong result 1, quit early 1
+  state            1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 15.7 calls | misses: wrong result 1, quit early 1
+  effects          1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 19.7 calls | misses: wrong result 2
+  state+effects    1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 19.0 calls | misses: low confidence 1, quit early 1
+  done-check       1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 14.7 calls | misses: low confidence 2
+  state+done-check 0/3 succeeded, 0 exact, - turns (optimal 4), 16.3 calls | misses: low confidence 2, wrong result 1
+
+===== extra goals =====
+turn on Advanced view in Character Map
+  baseline         3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  state            3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  effects          3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  state+effects    3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  done-check       3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  state+done-check 3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+set the snipping area to Full screen in Snipping Tool
+  baseline         3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  state            3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  effects          3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  state+effects    3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  done-check       3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  state+done-check 3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+in Calculator, press 9 - 4 = to find the answer
+  baseline         1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 13.3 calls | misses: quit early 2
+  state            1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 13.3 calls | misses: quit early 2
+  effects          1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 16.0 calls | misses: low confidence 1, quit early 1
+  state+effects    1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 14.7 calls | misses: low confidence 1, quit early 1
+  done-check       3/3 succeeded, 3 exact, 4.00 turns (optimal 4), 20.0 calls | misses: -
+  state+done-check 3/3 succeeded, 3 exact, 4.00 turns (optimal 4), 20.0 calls | misses: -
+in Calculator, press 2 + 3 + 4 = to find the answer
+  baseline         0/3 succeeded, 0 exact, - turns (optimal 6), 24.3 calls | misses: quit early 2, low confidence 1
+  state            0/3 succeeded, 0 exact, - turns (optimal 6), 27.7 calls | misses: low confidence 1, quit early 1, wrong result 1
+  effects          2/3 succeeded, 2 exact, 6.00 turns (optimal 6), 26.3 calls | misses: wrong result 1
+  state+effects    2/3 succeeded, 2 exact, 6.00 turns (optimal 6), 26.3 calls | misses: wrong result 1
+  done-check       0/3 succeeded, 0 exact, - turns (optimal 6), 35.0 calls | misses: wrong result 3
+  state+done-check 0/3 succeeded, 0 exact, - turns (optimal 6), 35.0 calls | misses: wrong result 3
+
+benchmark.py multi-step goals
+  baseline         7/12 succeeded, 8.6 calls per run
+  state            6/12 succeeded, 8.4 calls per run
+  effects          9/12 succeeded, 10.1 calls per run
+  state+effects    9/12 succeeded, 10.1 calls per run
+  done-check       7/12 succeeded, 9.9 calls per run
+  state+done-check 6/12 succeeded, 9.8 calls per run
+all goals
+  baseline         22/33 succeeded, 10.2 calls per run
+  state            22/33 succeeded, 9.9 calls per run
+  effects          27/33 succeeded, 9.4 calls per run
+  state+effects    26/33 succeeded, 10.5 calls per run
+  done-check       24/33 succeeded, 11.8 calls per run
+  state+done-check 24/33 succeeded, 11.0 calls per run
+
+===== every run (baseline and state outside Calculator reused from round 1, which replays identically; restarts were resumed with the same seeds) =====
+      OK   baseline quit 3 calls 22s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   state quit 3 calls 27s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   baseline quit 5 calls 34s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   state quit 5 calls 35s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   baseline quit 16 calls 117s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   state quit 10 calls 72s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   baseline quit 6 calls 50s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   state quit 6 calls 50s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   baseline quit 9 calls 63s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   state quit 9 calls 64s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      MISS baseline quit early 3 calls 25s ['Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS state quit early 3 calls 25s ['Click Button "Copy" id=103'] | press the Select button in Character Map, then press Select again
+      OK   baseline quit 3 calls 24s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   state quit 3 calls 26s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   baseline quit 5 calls 35s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   state quit 5 calls 36s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   baseline quit 28 calls 238s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   state quit 28 calls 243s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   baseline quit 6 calls 51s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      MISS state quit early 4 calls 34s ['Select ListItem "Arial Black"'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   baseline quit 9 calls 64s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   state quit 9 calls 64s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      MISS baseline quit early 3 calls 25s ['Click Button "Copy" id=103'] | press the Select button in Character Map, then press Select again
+      MISS state quit early 3 calls 25s ['Click Button "Copy" id=103'] | press the Select button in Character Map, then press Select again
+      OK   baseline quit 3 calls 26s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   state quit 3 calls 27s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   baseline quit 5 calls 34s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   state quit 5 calls 36s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      MISS baseline action limit 30 calls 267s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   state quit 16 calls 128s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   baseline quit 6 calls 54s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   state quit 6 calls 55s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   baseline quit 9 calls 70s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   state quit 9 calls 67s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      MISS baseline quit early 5 calls 41s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS state quit early 5 calls 42s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      OK   baseline quit 3 calls 25s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   state quit 3 calls 26s ['Toggle CheckBox "Advanced view" id=109 ('] | turn on Advanced view in Character Map
+      OK   baseline quit 5 calls 35s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   state quit 5 calls 36s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   baseline quit 3 calls 23s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   state quit 3 calls 23s ['Toggle CheckBox "Advanced view" id=109 ('] | turn on Advanced view in Character Map
+      OK   baseline quit 5 calls 30s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   state quit 5 calls 31s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   baseline quit 3 calls 44s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   state quit 3 calls 47s ['Toggle CheckBox "Advanced view" id=109 ('] | turn on Advanced view in Character Map
+      OK   baseline quit 5 calls 59s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   state quit 5 calls 57s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   effects quit 3 calls 34s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   state+effects quit 3 calls 28s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   done-check judged done 3 calls 20s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   state+done-check judged done 3 calls 20s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   effects quit 5 calls 37s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   state+effects quit 5 calls 38s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   done-check judged done 5 calls 29s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   state+done-check judged done 5 calls 31s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   effects quit 5 calls 37s ['Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   state+effects quit 10 calls 86s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   done-check judged done 9 calls 55s ['Select ListItem "Full screen"', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   state+done-check judged done 9 calls 53s ['Select ListItem "Full screen"', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   effects quit 6 calls 61s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   state+effects quit 6 calls 60s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   done-check judged done 10 calls 76s ['Click Button "Copy" id=103', 'Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   state+done-check judged done 7 calls 52s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   effects quit 9 calls 71s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   state+effects quit 9 calls 72s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   done-check judged done 10 calls 64s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   state+done-check judged done 10 calls 67s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      MISS effects quit early 3 calls 28s ['Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS state+effects quit early 5 calls 46s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS done-check judged done early 6 calls 40s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS state+done-check judged done early 6 calls 40s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS baseline wrong result 21 calls 208s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS state wrong result 21 calls 208s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS effects wrong result 21 calls 216s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS state+effects low confidence 18 calls 179s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "One" id=num1Button'] | in Calculator, press 1 + 1 = to find the answer
+      MISS done-check low confidence 12 calls 91s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS state+done-check low confidence 12 calls 91s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   effects quit 5 calls 43s ['Click Button "Select" id=102', 'Click Button "Copy" id=103'] | press the Select button in Character Map
+      OK   state+effects quit 5 calls 46s ['Click Button "Select" id=102', 'Click Button "Copy" id=103'] | press the Select button in Character Map
+      OK   done-check judged done 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   state+done-check judged done 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   effects quit 5 calls 38s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   state+effects quit 5 calls 39s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   done-check judged done 5 calls 28s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   state+done-check judged done 5 calls 29s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   effects quit 4 calls 32s ['Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      MISS state+effects wrong result 19 calls 181s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   done-check judged done 9 calls 52s ['Select ListItem "Full screen"', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   state+done-check judged done 12 calls 73s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   effects quit 6 calls 55s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   state+effects quit 6 calls 57s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   done-check judged done 10 calls 71s ['Click Button "Copy" id=103', 'Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   state+done-check judged done 7 calls 49s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   effects quit 9 calls 71s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   state+effects quit 9 calls 73s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   done-check judged done 10 calls 62s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   state+done-check judged done 10 calls 63s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   effects quit 7 calls 65s ['Click Button "Copy" id=103', 'Click Button "Select" id=102', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      OK   state+effects quit 7 calls 67s ['Click Button "Copy" id=103', 'Click Button "Select" id=102', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS done-check judged done early 6 calls 40s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS state+done-check judged done early 6 calls 38s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      OK   baseline quit 17 calls 157s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   state quit 17 calls 164s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS effects wrong result 21 calls 223s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS state+effects quit early 22 calls 239s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   done-check judged done 20 calls 165s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS state+done-check wrong result 25 calls 220s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "One" id=num1Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   effects quit 3 calls 29s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   state+effects quit 3 calls 28s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   done-check judged done 3 calls 19s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   state+done-check judged done 3 calls 20s ['Click Button "Select" id=102'] | press the Select button in Character Map
+      OK   effects quit 5 calls 39s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   state+effects quit 5 calls 42s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   done-check judged done 5 calls 32s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   state+done-check judged done 5 calls 34s ['Select ListItem "Delay snip for 5 second'] | set the snip delay to 5 seconds in Snipping Tool
+      OK   effects quit 4 calls 34s ['Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   state+effects quit 22 calls 232s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      MISS done-check action limit 40 calls 330s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   state+done-check judged done 12 calls 75s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
+      OK   effects quit 6 calls 58s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   state+effects quit 6 calls 58s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   done-check judged done 7 calls 47s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   state+done-check judged done 7 calls 48s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   effects quit 9 calls 71s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   state+effects quit 9 calls 71s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   done-check judged done 10 calls 60s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   state+done-check judged done 10 calls 61s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   effects quit 7 calls 63s ['Click Button "Copy" id=103', 'Click Button "Select" id=102', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      OK   state+effects quit 7 calls 65s ['Click Button "Copy" id=103', 'Click Button "Select" id=102', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS done-check judged done early 6 calls 37s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS state+done-check judged done early 6 calls 38s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS baseline quit early 9 calls 75s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS state quit early 9 calls 79s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   effects quit 17 calls 164s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   state+effects quit 17 calls 160s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS done-check low confidence 12 calls 89s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS state+done-check low confidence 12 calls 89s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   effects quit 3 calls 26s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   state+effects quit 3 calls 26s ['Toggle CheckBox "Advanced view" id=109 ('] | turn on Advanced view in Character Map
+      OK   done-check judged done 3 calls 18s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   state+done-check judged done 3 calls 18s ['Toggle CheckBox "Advanced view" id=109 ('] | turn on Advanced view in Character Map
+      OK   effects quit 5 calls 35s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   state+effects quit 5 calls 36s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   done-check judged done 5 calls 27s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   state+done-check judged done 5 calls 27s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      MISS baseline quit early 14 calls 123s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS state quit early 14 calls 126s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS effects low confidence 14 calls 132s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS state+effects low confidence 14 calls 131s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      OK   done-check judged done 20 calls 153s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      OK   state+done-check judged done 20 calls 156s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      MISS baseline quit early 25 calls 250s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS state low confidence 28 calls 291s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Five" id=num5Button'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      OK   effects quit 25 calls 268s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      OK   state+effects quit 25 calls 276s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS done-check wrong result 35 calls 313s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS state+done-check wrong result 35 calls 312s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      OK   effects quit 3 calls 27s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   state+effects quit 3 calls 29s ['Toggle CheckBox "Advanced view" id=109 ('] | turn on Advanced view in Character Map
+      OK   done-check judged done 3 calls 19s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   state+done-check judged done 3 calls 20s ['Toggle CheckBox "Advanced view" id=109 ('] | turn on Advanced view in Character Map
+      OK   effects quit 5 calls 37s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   state+effects quit 5 calls 38s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   done-check judged done 5 calls 28s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   state+done-check judged done 5 calls 27s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      MISS baseline quit early 9 calls 79s ['Click Button "Four" id=num4Button', 'Click Button "Minus" id=minusButton'] | in Calculator, press 9 - 4 = to find the answer
+      MISS state quit early 9 calls 79s ['Click Button "Four" id=num4Button', 'Click Button "Minus" id=minusButton'] | in Calculator, press 9 - 4 = to find the answer
+      MISS effects quit early 17 calls 167s ['Click Button "Four" id=num4Button', 'Click Button "Minus" id=minusButton', 'Click Button "Nine" id=num9Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      MISS state+effects quit early 13 calls 121s ['Click Button "Four" id=num4Button', 'Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton'] | in Calculator, press 9 - 4 = to find the answer
+      OK   done-check judged done 20 calls 156s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      OK   state+done-check judged done 20 calls 157s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      MISS baseline quit early 26 calls 256s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS state quit early 26 calls 255s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS effects wrong result 29 calls 309s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS state+effects wrong result 29 calls 297s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS done-check wrong result 35 calls 279s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS state+done-check wrong result 35 calls 279s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      OK   effects quit 3 calls 24s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   state+effects quit 3 calls 24s ['Toggle CheckBox "Advanced view" id=109 ('] | turn on Advanced view in Character Map
+      OK   done-check judged done 3 calls 16s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   state+done-check judged done 3 calls 17s ['Toggle CheckBox "Advanced view" id=109 ('] | turn on Advanced view in Character Map
+      OK   effects quit 5 calls 32s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   state+effects quit 5 calls 31s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   done-check judged done 5 calls 24s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   state+done-check judged done 5 calls 25s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   baseline quit 17 calls 137s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      OK   state quit 17 calls 141s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      OK   effects quit 17 calls 148s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      OK   state+effects quit 17 calls 150s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      OK   done-check judged done 20 calls 138s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      OK   state+done-check judged done 20 calls 163s ['Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 9 - 4 = to find the answer
+      MISS baseline low confidence 22 calls 196s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS state wrong result 29 calls 274s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      OK   effects quit 25 calls 257s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      OK   state+effects quit 25 calls 249s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS done-check wrong result 35 calls 288s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS state+done-check wrong result 35 calls 288s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 2 + 3 + 4 = to find the answer

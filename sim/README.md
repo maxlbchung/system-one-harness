@@ -23,17 +23,19 @@ python sim/run_tests.py
 
 ## Variants
 
-Three harness flags, all off by default, each aimed at the biggest real-model failures:
+Harness flags, all off by default, each aimed at the biggest real-model failures. Round 1 tried the first three, round 2 the last two:
 
 | Variant | Change | Aimed at |
 |---|---|---|
 | `state` | `SHOW_STATE`: labels carry toggle states and values (`(on)`, `value="Arial"`), the history records what an action set, and the location lists read-only text such as `Display is 2`. | Toggles pressed again and again; no feedback from Calculator |
 | `instructions` | A new `INSTRUCTIONS`: don't redo an action unless the question asks for it again, and quit only when every step is in Done so far. | Early quits; "Select twice" |
 | `resume` | `RESUME`: after an action, carry on where it happened, with a "back" option, instead of from the desktop. | 14+ calls per Calculator goal, each one a chance to go wrong |
+| `effects` | `SHOW_EFFECTS`: snapshot the app window before and after each action, and add what changed to that action's history entry, such as `Click Button "Select" (changed: Edit "Characters to copy :" empty -> value="!")`. | The model judging progress from its actions alone |
+| `done-check` | `DONE_CHECK`: quit leaves the option list. After each action, a separate yes/no question asks whether every part of the question is done. | Quitting as one option among dozens |
 
-## Real model: variants against the baseline
+## Real model, round 1: state, instructions, resume
 
-3 runs per goal and variant, on the same seeds. Wingdings is skipped because no variant can reach an offscreen item. Full output: `results_real.txt`.
+3 runs per goal and variant, on the same seeds. Wingdings is skipped because no variant can reach an offscreen item. Full output: `results_real_round1.txt`. Round 2 changed the simulated Calculator, so its Calculator rows supersede these.
 
 | Goal | baseline | state | instructions | resume |
 |---|---|---|---|---|
@@ -57,11 +59,35 @@ Three harness flags, all off by default, each aimed at the biggest real-model fa
 2. **`instructions` is worse (19/33).** It got one more Calculator 1 + 1 = right, but it quit before acting on "Select twice" in all 3 runs, and lost two Arial Black runs. The stricter quit rule didn't stop early quits on the other Calculator goals.
 3. **`resume` is much worse (13/33).** Left where it just acted, the model presses the same button again instead of quitting or going back: Select 10 times, capture mode 10 times, One until the action limit. Restarting from the desktop is what makes it re-read the goal and stop. Calls per run didn't drop either, because the runs ran to the action limit.
 
-What's left is in the model rather than the prompt layout. It doesn't use state it's shown, and it reads "repeat" goals as done after one step. The likely next steps are to change how quit and repeated actions are scored, not how the tree is shown:
-- Stop on a repeated identical action unless the goal asks for a repeat.
-- Have the harness check toggle and value state itself instead of leaving it to the model.
-
 Three runs per cell is a small sample, so 1-run differences are noise. The `resume` drop and the `instructions` "Select twice" collapse were consistent in every run.
+
+## Real model, round 2: effects and done-check, each on baseline and state
+
+The same setup. The simulated Calculator now matches Windows: after an operator the display keeps the number, and an "Expression is 1 +" line appears. So baseline and `state` were rerun on Calculator, and their other results reused from round 1 (spot checks replayed identically). Full output: `results_real_round2.txt`.
+
+| Goal | baseline | state | effects | state+effects | done-check | state+done-check |
+|---|---|---|---|---|---|---|
+| Select button | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| Delay 5 s | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| Video capture mode | 2/3 (7.0 turns) | 3/3 (5.7) | **3/3 (1.0)** | 2/3 (5.0) | 2/3 (2.0) | 3/3 (2.7) |
+| Arial Black, then Select | 3/3 | 2/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| Delay 3 s + area Window | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| Select twice | 0/3 | 0/3 | **2/3** | **2/3** | 0/3 | 0/3 |
+| Calculator 1 + 1 = | 1/3 | 1/3 | 1/3 | 1/3 | 1/3 | 0/3 |
+| Advanced view | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| Full screen | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| Calculator 9 - 4 = | 1/3 | 1/3 | 1/3 | 1/3 | **3/3** | **3/3** |
+| Calculator 2 + 3 + 4 = | 0/3 | 0/3 | **2/3** | **2/3** | 0/3 | 0/3 |
+| **All goals** | **22/33** | **22/33** | **27/33** | **26/33** | **24/33** | **24/33** |
+| Calls per run | 10.2 | 9.9 | 9.4 | 10.5 | 11.8 | 11.0 |
+
+**`effects` is the first change to beat the baseline: 27/33 against 22/33, with fewer calls per run.** Turn `SHOW_EFFECTS` on.
+
+1. **Seeing results fixes the repeat failures.** With "Capture mode (off) -> (on)" in the history, the model toggled once and stopped in all 3 runs. It used to toggle 5–10 times. "Select twice" went from 0/3 to 2/3, because "Characters to copy: value="!"" after one click shows one is not two. 2 + 3 + 4 = went from 0/3 to 2/3, the first time anything solved it. Both "Select twice" wins clicked Copy first, so they weren't exact.
+2. **`done-check` helps where effects don't, and fails where they do (24/33).** Asked on its own, "is it done?" kept Calculator 9 - 4 = going to the end in 3/3 runs (baseline 1/3). But the judge sees only the history, without effects: it said "done" after one Select on "Select twice" in all 3 runs. On 2 + 3 + 4 = the model pressed an extra Plus after Four in all 3 runs, before Equals, and got the wrong result. It also costs about 1.5 more calls per run.
+3. **`state` adds nothing on top of either change** (26/33 with effects, 24/33 with done-check). It's the same story as round 1: the model ignores state in labels, but uses the same information once it's written as a change in the history.
+
+The two changes look complementary: the done judge reads the history, so it should get effects too. Combining `effects` + `done-check` is the obvious next test. The remaining misses are mostly Calculator 1 + 1 =, at 1/3 everywhere.
 
 ## Proxy model: baseline (20 repeats, noise 1.0, floor 0.25, action limit 10)
 
