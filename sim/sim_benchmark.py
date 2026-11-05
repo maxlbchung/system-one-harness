@@ -43,6 +43,7 @@ VARIANTS = {
     "state+effects": {"SHOW_STATE": True, "SHOW_EFFECTS": True},
     "done-check": {"DONE_CHECK": True},
     "state+done-check": {"SHOW_STATE": True, "DONE_CHECK": True},
+    "effects+done-check": {"SHOW_EFFECTS": True, "DONE_CHECK": True},
 }
 
 
@@ -183,14 +184,14 @@ def report(goals, results, variants):
             endings = collections.Counter(r[3] for r in runs if not r[0])
             calls = sum(r[2] for r in runs) / len(runs)
             misses = ", ".join(f"{k} {n}" for k, n in endings.most_common()) or "-"
-            print(f"  {v:16} {benchmark.row([r[:2] for r in runs], len(wanted))}, {calls:.1f} calls | misses: {misses}")
+            print(f"  {v:18} {benchmark.row([r[:2] for r in runs], len(wanted))}, {calls:.1f} calls | misses: {misses}")
 
 
 def totals(title, goals, results, variants):
     print(title)
     for v in variants:
         runs = [r for _, goal, _, _ in goals for r in results[goal, v]]
-        print(f"  {v:16} {sum(r[0] for r in runs)}/{len(runs)} succeeded, {sum(r[2] for r in runs) / len(runs):.1f} calls per run")
+        print(f"  {v:18} {sum(r[0] for r in runs)}/{len(runs)} succeeded, {sum(r[2] for r in runs) / len(runs):.1f} calls per run")
 
 
 def main(repeats, variants):
