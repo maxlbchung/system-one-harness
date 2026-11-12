@@ -37,12 +37,17 @@ PREVIEW_NAMES, PREVIEW_NAME, PREVIEW_VISITS = 24, 30, 60
 # ponytail: one floor for every step, set from 60 dry runs on one desktop, retune on wider goals
 MIN_CONFIDENCE = 0.5
 HISTORY_PATHS = True  # History shows the nodes picked on the way to each action, not just the action.
+SHOW_STATE = False  # Options say what a control is set to now. Off until the benchmark has judged it.
+ALLOW_BACK = False  # Below the desktop, the model can go back up a level. Off until the benchmark has judged it.
 SHUFFLE = random.Random()  # Its own generator, so the benchmark can seed the option order and nothing else.
 
 INSTRUCTIONS = "Choose the best next step. Don't repeat what's done. Quit only when all of it is done or if goal is unreachable."
+# Used wherever back is offered, where quitting no longer has to cover a wrong turn.
+INSTRUCTIONS_BACK = "Choose the best next step. Don't repeat what's done. Go back if what's needed isn't here. Quit only when all of it is done."
 
 VERBS = {
     "quit": "Do nothing more and stop.",
+    "back": "What's needed isn't here. Go back and look elsewhere.",
     "open": "Go one level inside this item to see what it contains.",
     "invoke": "Activate this item, like clicking it.",
     "toggle": "Switch this item on or off.",
@@ -163,10 +168,29 @@ def preview(control):
     return names
 
 
+def state(control, verb):
+    """What the control is set to now, for the verb that would change it, or "" if there's nothing to say."""
+    try:
+        if verb == "toggle" and (p := control.GetPattern(uia.PatternId.TogglePattern)):
+            return {uia.ToggleState.On: "on", uia.ToggleState.Off: "off"}.get(p.ToggleState, "mixed")
+        if verb == "select" and (p := control.GetPattern(uia.PatternId.SelectionItemPattern)):
+            return "selected" if p.IsSelected else ""
+        if verb in ("expand", "type") and (p := control.GetPattern(uia.PatternId.ValuePattern)):
+            # Quoted and cut short, because this is the app's text and could read like an instruction.
+            value = " ".join((p.Value or "").split())[:PREVIEW_NAME]
+            return f'"{value}"' if value else ""
+    except COMError:  # The element vanished while it was read.
+        pass
+    return ""
+
+
 def describe(verb, control, text):
     if verb == "open" and (names := preview(control)):
         return f"{VERBS[verb]} Contains: {', '.join(names)}"
-    return VERBS[verb].format(text=text)
+    words = VERBS[verb].format(text=text)
+    if SHOW_STATE and control and (now := state(control, verb)):
+        words += f" Now: {now}."
+    return words
 
 
 def label(control):
@@ -175,14 +199,19 @@ def label(control):
     return f"{text} id={control.AutomationId}" if control.AutomationId else text
 
 
-def options(node, text=None):
-    """Options at node as name -> (verb, control, action). Quit comes first.
+def options(node, text=None, depth=0, skipped=()):
+    """Options at node as name -> (verb, control, action). Quit comes first, then back below the root.
 
     The model can't write text, so type is offered only when the caller supplies it.
+    skipped holds what the walk already backed out of, which isn't offered again.
     """
     found = {"quit": ("quit", None, None)}
+    if ALLOW_BACK and depth:
+        found["back"] = ("back", None, None)
     for child in children(node):
         try:
+            if any(uia.ControlsAreSame(child, left) for left in skipped):
+                continue
             # Acting on a disabled control raises, but what's inside it can still be usable.
             moves = actions(child) if child.IsEnabled else {}
             # Inside something clickable there's only its icon and caption, so opening it is a dead end.
@@ -218,7 +247,8 @@ def ask_openjev(goal, path, opts, text, done, model):
     listing = "\n".join(f"[{k}] {n}: {describe(opts[n][0], opts[n][1], text)}" for k, n in letters.items())
     steps = [" > ".join(nodes if HISTORY_PATHS else nodes[-1:]) for nodes in done]
     finished = f"Done so far: {'; '.join(steps)}\n" if done else ""
-    prompt = f"State:\n{finished}Location: {' > '.join(path)}\n\nQuestion: {goal}\n{INSTRUCTIONS}\nOptions:\n{listing}"
+    instructions = INSTRUCTIONS_BACK if "back" in opts else INSTRUCTIONS
+    prompt = f"State:\n{finished}Location: {' > '.join(path)}\n\nQuestion: {goal}\n{instructions}\nOptions:\n{listing}"
     body = {
         "model": model,
         "stream": False,
@@ -279,15 +309,22 @@ def ask_terminal(verb, control, text):
 
 def walk(goal, root, ask, text, permit, on_event, cancelled, undo):
     node, path, done = root, [label(root)], []
+    above, skipped = [], []  # The nodes over this one, and the ones this walk backed out of.
     for _ in range(MAX_STEPS):
         on_event({"kind": "at", "node": node})
-        opts = options(node, text)
-        if len(opts) == 1:
+        opts = options(node, text, len(above), skipped)
+        verbs = [option[0] for option in opts.values() if option[0] != "back"]
+        if verbs == ["quit"] and "back" not in opts:
             on_event({"kind": "stop", "reason": "nothing usable here"})
             return "quit"
-        # A lone child is the only way forward, so skip the model call.
-        auto = [option[0] for option in opts.values()] == ["quit", "open"]
-        pick = {"choice": list(opts)[1], "confidence": 1.0} if auto else ask(goal, path, opts, text, done)
+        if verbs == ["quit"]:
+            # A dead end has nothing to weigh, so the harness goes back up itself.
+            pick, auto = {"choice": "back", "confidence": 1.0}, True
+        elif verbs == ["quit", "open"]:
+            # A lone child is the only way forward, so skip the model call.
+            pick, auto = {"choice": list(opts)[-1], "confidence": 1.0}, True
+        else:
+            pick, auto = ask(goal, path, opts, text, done), False
         # Checked after the slow model call, so a cancel during it can't reach an action.
         if cancelled():
             return "cancelled"
@@ -295,16 +332,24 @@ def walk(goal, root, ask, text, permit, on_event, cancelled, undo):
             on_event({"kind": "stop", "reason": "the model didn't answer with an option"})
             return "quit"
         verb, control, act = opts[pick["choice"]]
-        on_event({"kind": "pick", "node": node, "path": path, "auto": auto, "options": opts, **pick})
+        on_event({"kind": "pick", "node": node, "path": list(path), "auto": auto, "options": opts, **pick})
         if pick["confidence"] < MIN_CONFIDENCE:
             on_event({"kind": "stop", "reason": f"confidence {pick['confidence']:.2f} is below the floor of {MIN_CONFIDENCE:.2f}"})
             return "quit"
         if verb == "quit":
             return verb
-        if verb == "open":
+        if verb == "back":
+            # Looking, not acting. Whatever was opened to get in here is put back on the way out.
+            if undo and undo[-1][0] is node:
+                undo.pop()[1](node)
+            skipped.append(node)
+            node = above.pop()
+            path.pop()
+        elif verb == "open":
             if is_minimized(control):
                 restore(control)
                 undo.append((control, minimize))
+            above.append(node)
             node = control
             path.append(label(control))
         elif verb == "expand":
@@ -315,6 +360,7 @@ def walk(goal, root, ask, text, permit, on_event, cancelled, undo):
             undo.append((control, collapse))
             # ponytail: a menu can open outside its button, where the agent can't reach it from here
             if children(control):
+                above.append(node)
                 node = control
                 path.append(label(control))
         else:
@@ -342,6 +388,8 @@ def walk(goal, root, ask, text, permit, on_event, cancelled, undo):
             time.sleep(ACTION_WAIT)
             on_event({"kind": "restart"})
             node, path = root, [label(root)]
+            above.clear()
+            skipped.clear()
     on_event({"kind": "stop", "reason": f"reached the step limit of {MAX_STEPS}"})
     return "quit"
 

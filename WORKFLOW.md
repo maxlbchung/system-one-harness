@@ -90,7 +90,7 @@ Change the thing behind the most common class. One MISS is an anecdote.
 
 ## Deciding
 
-The default run is 5 repeats of 7 goals: 35 paired attempts. That is small, so compare
+The default run is 5 repeats of 9 goals: 45 paired attempts per variant. That is small, so compare
 pairs, not totals. Count the pairs where exactly one side succeeded: `b` where only the
 variant did, `c` where only the baseline did. The benchmark prints this as `b-c`.
 

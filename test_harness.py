@@ -405,6 +405,136 @@ for _ in range(2):
 orders.append(harness.ask_openjev("x", ["Desktop"], harness.options(twins), None, [], "m")["prompt"])
 assert orders[0] == orders[1] != orders[2]
 
+
+
+class Pattern:
+    def __init__(self, **values):
+        self.__dict__.update(values)
+
+
+class Stateful(Node):
+    """A control whose patterns can be read, like a real one."""
+
+    def __init__(self, name, patterns, **kwargs):
+        super().__init__(name, **kwargs)
+        self.patterns = patterns
+
+    def GetPattern(self, pattern):
+        found = self.patterns.get(pattern)
+        if isinstance(found, Exception):
+            raise found
+        return found
+
+
+# A control's state is read for the verb that would change it, in a few words.
+ids, toggles = harness.uia.PatternId, harness.uia.ToggleState
+switch = Stateful("Video", {ids.TogglePattern: Pattern(ToggleState=toggles.On)}, acts={"toggle": print})
+assert harness.state(switch, "toggle") == "on" and harness.state(switch, "invoke") == ""
+switch.patterns[ids.TogglePattern].ToggleState = toggles.Indeterminate
+assert harness.state(switch, "toggle") == "mixed"
+switch.patterns[ids.TogglePattern].ToggleState = toggles.Off
+assert harness.state(switch, "toggle") == "off"
+chosen = Stateful("Arial", {ids.SelectionItemPattern: Pattern(IsSelected=True)}, acts={"select": print})
+assert harness.state(chosen, "select") == "selected"
+chosen.patterns[ids.SelectionItemPattern].IsSelected = False
+assert harness.state(chosen, "select") == ""
+
+# A value is the app's own text, so it's quoted, kept to one line and cut short. No value says nothing.
+field = Stateful("Font", {ids.ValuePattern: Pattern(Value="Arial\n Black" + "x" * 99)}, acts={"type": print})
+assert harness.state(field, "type") == harness.state(field, "expand") == f'"Arial Black{"x" * (harness.PREVIEW_NAME - 11)}"'
+field.patterns[ids.ValuePattern].Value = ""
+assert harness.state(field, "type") == ""
+assert harness.state(Node("Plain"), "toggle") == ""
+gone = Stateful("Gone", {ids.TogglePattern: COMError(-2147220991, "dead element", (None, None, None, 0, None))})
+assert harness.state(gone, "toggle") == ""
+
+# The model is only told the state when the setting is on, and labels never change.
+panel = Node("Panel", switch, chosen)
+before = harness.label(switch)
+assert harness.describe("toggle", switch, None) == harness.VERBS["toggle"]
+urllib.request.urlopen = reply(("A", 0.9))
+assert "Now:" not in harness.ask_openjev("x", ["Panel"], harness.options(panel), None, [], "m")["prompt"]
+harness.SHOW_STATE = True
+assert harness.describe("toggle", switch, None) == harness.VERBS["toggle"] + " Now: off."
+assert harness.describe("select", chosen, None) == harness.VERBS["select"]  # Nothing to say about an unselected item.
+assert harness.describe("quit", None, None) == harness.VERBS["quit"]
+shown = harness.ask_openjev("x", ["Panel"], harness.options(panel), None, [], "m")["prompt"]
+assert f'toggle Pane "Video": {harness.VERBS["toggle"]} Now: off.' in shown and harness.label(switch) == before
+harness.SHOW_STATE = False
+
+# Going back is only offered when it's switched on, and never at the root, where there's nowhere to go.
+assert "back" not in harness.options(window, depth=1)
+harness.ALLOW_BACK = True
+assert "back" not in harness.options(window) and list(harness.options(window, depth=1))[:2] == ["quit", "back"]
+
+# Where back is offered the instructions say so. At the root they still let quit cover an unreachable goal.
+deep = harness.ask_openjev("x", ["Desktop", "App"], harness.options(window, depth=1), None, [], "m")["prompt"]
+shallow = harness.ask_openjev("x", ["Desktop"], harness.options(root), None, [], "m")["prompt"]
+assert harness.INSTRUCTIONS_BACK in deep and f"] back: {harness.VERBS['back']}" in deep
+assert harness.INSTRUCTIONS in shallow and harness.INSTRUCTIONS_BACK not in shallow
+
+# A wrong turn isn't the end: back returns to the level above, which no longer offers the branch just left.
+# It's looking, so nothing is asked and nothing goes on record, and the next walk starts with everything offered again.
+went = []
+wrong = Node("Wrong", Node("X", acts={"invoke": print}), Node("Y", acts={"invoke": print}))
+right = Node("Right", Node("Go", acts={"invoke": lambda: went.append("go")}), Node("Other", acts={"invoke": print}))
+fork = Node("Desktop", wrong, right, Node("Third", Node("Z", acts={"invoke": print}), Node("W", acts={"invoke": print})))
+WRONG, RIGHT, GO = 'open Pane "Wrong"', 'open Pane "Right"', 'invoke Pane "Go"'
+asked.clear()
+events = []
+ask = scripted(WRONG, "back", RIGHT, GO, "quit")
+assert harness.run("go", fork, ask, permit=lambda *a: asked.append(a) or True, on_event=events.append) == "quit"
+assert went == ["go"] and [a[0] for a in asked] == ["invoke"]
+assert WRONG in ask.seen[0] and WRONG not in ask.seen[2] and RIGHT in ask.seen[2] and WRONG in ask.seen[4]
+assert "back" in ask.seen[1] and "back" not in ask.seen[2]
+assert ask.done[-1] == [['Pane "Right"', 'Click Pane "Go"']]
+assert [e["path"] for e in events if e["kind"] == "pick"][2] == ['Pane "Desktop"']
+
+# A dead end backs out by itself, level by level, and a lone child is still entered without asking the model.
+events.clear()
+ask = scripted('open Pane "Mid"', 'invoke Pane "A"', "quit")
+assert harness.run("find it", tree, ask, on_event=events.append) == "quit"
+picks = [(e["choice"], e["auto"]) for e in events if e["kind"] == "pick"]
+assert picks[:5] == [('open Pane "Mid"', False), ('open Pane "Deep"', True), ("back", True), ("back", True), ('open Pane "Other"', True)]
+assert picks[5:] == [('invoke Pane "A"', False), ("quit", False)] and not [e for e in events if e["kind"] == "stop"]
+
+# With nowhere left to go back to, the run stops as before.
+events.clear()
+assert harness.run("x", Node("Root", Node("Only", Node("Inner", Node("Label")))), scripted(), on_event=events.append) == "quit"
+assert events[-1] == {"kind": "stop", "reason": "nothing usable here"}
+
+# Backing out of a dropdown closes it straight away, not at the end of the run.
+closed = []
+
+
+def watching(*names):
+    inner = scripted(*names)
+
+    def ask(*args):
+        closed.append(harness.is_collapsed(delay))
+        return inner(*args)
+
+    return ask
+
+
+assert harness.run("x", form, watching(EXPAND, "back", "quit")) == "quit"
+assert closed == [True, False, True]
+
+# Backing out of a window that was restored to look inside minimizes it again.
+commands.clear()
+ask = scripted(OPEN_CAMERA, "back", "quit")
+assert harness.run("x", desktop, ask) == "quit" and iconic == {7} and clicks == []
+assert commands == [harness.uia.SW.ShowNoActivate, harness.uia.SW.ShowMinNoActive]
+assert ask.seen[2] == ["quit", "back", 'invoke Pane "Start"']  # The camera is skipped, so the taskbar was the only way.
+
+# The step limit still bounds a walk that keeps going back.
+events.clear()
+limit, harness.MAX_STEPS = harness.MAX_STEPS, 4
+assert harness.run("x", fork, scripted(WRONG, "back", RIGHT, "back", "quit"), on_event=events.append) == "quit"
+assert events[-1] == {"kind": "stop", "reason": "reached the step limit of 4"}
+harness.MAX_STEPS = limit
+harness.ALLOW_BACK = False
+
 # The model list comes from Ollama, and is empty if Ollama isn't running.
 urllib.request.urlopen = lambda url, timeout: io.BytesIO(json.dumps({"models": [{"name": "a:latest"}, {"name": "b:q4"}]}).encode())
 assert harness.installed_models() == ["a", "b:q4"]
@@ -442,6 +572,19 @@ pairs = {
     (2, "a"): {"new": True},
 }
 assert benchmark.paired(pairs, "new") == (2, 1)
+
+# The benchmark finds a control anywhere under a window, and reads nothing where there isn't one.
+assert benchmark.find(panel, lambda c: c.Name == "Arial") is chosen and benchmark.find(panel, lambda c: False) is None
+assert benchmark.find(fork, lambda c: c.Name == "Go") is right.kids[0]
+benchmark.top = lambda title: panel
+assert benchmark.toggle_state(benchmark.SNIPPING, "Video") is False and benchmark.toggle_state(benchmark.SNIPPING, "Nope") is None
+assert benchmark.capture_mode() == "unknown" and benchmark.advanced_view_off() is None and benchmark.font() is None
+switch.Name = "Advanced view"
+assert benchmark.advanced_view_off() is True
+
+# Every variant names real harness constants, and both new options ship switched off.
+assert all(hasattr(harness, constant) for overrides in benchmark.VARIANTS.values() for constant in overrides)
+assert harness.SHOW_STATE is False and harness.ALLOW_BACK is False
 
 # Each variant starts from the shipped constants, so one's overrides never leak into the next.
 originals = {"HISTORY_PATHS": harness.HISTORY_PATHS}

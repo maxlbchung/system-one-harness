@@ -17,6 +17,8 @@ class COMError(Exception):
 uia = types.ModuleType("uiautomation")
 uia.PatternId = types.SimpleNamespace(InvokePattern=1, TogglePattern=2, SelectionItemPattern=3, ExpandCollapsePattern=4, ValuePattern=5)
 uia.ExpandCollapseState = types.SimpleNamespace(Collapsed=0, Expanded=1)
+uia.ToggleState = types.SimpleNamespace(Off=0, On=1, Indeterminate=2)
+uia.ControlsAreSame = lambda one, other: one is other
 uia.SW = types.SimpleNamespace(ShowNoActivate=4, ShowMinNoActive=7)
 uia.IsIconic = lambda handle: False
 uia.ShowWindow = lambda handle, command: None

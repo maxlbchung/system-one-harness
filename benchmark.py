@@ -6,7 +6,8 @@ Every decision is kept in runs/<time>.jsonl, so a miss can be read back afterwar
 Clicks happen only inside test apps opened here, and each run is skipped if its app is
 already open, since that one is the user's. A run succeeds if its steps all happened in
 order, plus the on-screen result where there is one, so wasted actions cost turns rather
-than the whole run. Exact counts the runs that also took the optimal turns.
+than the whole run. A goal that's already done succeeds only if the model quits without
+acting. Exact counts the runs that also took the optimal turns.
 A turn is one restart of the walk with a new action in its history.
 """
 import collections
@@ -17,6 +18,7 @@ import statistics
 import subprocess
 import sys
 import time
+from typing import Callable, NamedTuple
 
 import uiautomation as uia
 
@@ -26,7 +28,12 @@ REPEATS = 5
 MIN_CONFIDENCE, MAX_ACTIONS = 0.25, 10  # The user's settings. Room to overshoot a four step goal.
 BASELINE = "baseline"
 # Name -> harness constants to override. The baseline is the harness as it ships.
-VARIANTS = {BASELINE: {}, "final command": {"HISTORY_PATHS": False}}
+VARIANTS = {
+    BASELINE: {},
+    "final command": {"HISTORY_PATHS": False},
+    "state": {"SHOW_STATE": True},
+    "back": {"ALLOW_BACK": True},
+}
 RUNS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "runs")
 SEARCH_SECONDS = 1
 
@@ -41,21 +48,71 @@ SNIPPING = App("Snipping Tool", 'start "" snippingtool.exe', "SnippingTool.exe",
 CALCULATOR = App("Calculator", ["calc.exe"], "CalculatorApp.exe", 2.5)
 
 
-def shows_two():
+class Goal(NamedTuple):
+    app: App
+    text: str  # What the model is asked. {seen} is filled with what watch found.
+    wanted: list  # What each action must mention, in order. Empty when the right answer is to do nothing.
+    check: Callable = None  # check(done, seen) reads the screen after the run.
+    watch: Callable = None  # Reads the screen before the run. The goal is skipped if it finds nothing.
+
+
+def find(control, test, budget=400):
+    """The first control under this one that passes test, breadth first, or None."""
+    queue = harness.listed(control)
+    while queue and budget:
+        child, budget = queue.pop(0), budget - 1
+        try:
+            if test(child):
+                return child
+        except harness.COMError:  # The element vanished while it was read.
+            continue
+        queue += harness.listed(child)
+    return None
+
+
+def toggle_state(app, name):
+    """Whether the app's toggle with this in its name is on, or None if there isn't one."""
+    window = top(app.title)
+    found = window and find(window, lambda c: name in c.Name and c.GetPattern(uia.PatternId.TogglePattern))
+    return found.GetPattern(uia.PatternId.TogglePattern).ToggleState == uia.ToggleState.On if found else None
+
+
+def font():
+    """The font Character Map's dropdown shows, or None if it can't be read."""
+    window = top(CHARMAP.title)
+    box = window and find(window, lambda c: c.ControlTypeName == "ComboBoxControl" and c.GetPattern(uia.PatternId.ValuePattern))
+    return (box.GetPattern(uia.PatternId.ValuePattern).Value or None) if box else None
+
+
+def shows_two(done, seen):
     window = top(CALCULATOR.title)
     display = window.TextControl(AutomationId="CalculatorResults") if window else None
     return bool(display) and display.Exists(SEARCH_SECONDS) and display.Name == "Display is 2"
 
 
-# App, goal, what each action must mention in order, on-screen check.
+def capture_mode():
+    """Snipping Tool's capture toggle, or "unknown" so the goal still runs on action names alone."""
+    state = toggle_state(SNIPPING, "Capture mode")
+    return "unknown" if state is None else state
+
+
+def advanced_view_off():
+    return True if toggle_state(CHARMAP, "Advanced view") is False else None
+
+
+# The last two are already done when the run starts, so the only right answer is to quit without acting.
+# Their checks read the same control again, so they pass only if nothing was done and nothing changed.
 GOALS = [
-    (CHARMAP, "press the Select button in Character Map", ['"Select"'], None),
-    (SNIPPING, "set the snip delay to 5 seconds in Snipping Tool", ["5 second"], None),
-    (SNIPPING, "turn on video capture mode in Snipping Tool", ["Capture mode"], None),
-    (CHARMAP, "set the font to Arial Black in Character Map and then press the Select button", ["Arial Black", '"Select"'], None),
-    (SNIPPING, "set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool", ["3 second", "Window"], None),
-    (CHARMAP, "press the Select button in Character Map, then press Select again", ['"Select"', '"Select"'], None),
-    (CALCULATOR, "in Calculator, press 1 + 1 = to find the answer", ['"One"', '"Plus"', '"One"', '"Equals"'], shows_two),
+    Goal(CHARMAP, "press the Select button in Character Map", ['"Select"']),
+    Goal(SNIPPING, "set the snip delay to 5 seconds in Snipping Tool", ["5 second"]),
+    # Toggling it twice mentions it twice and leaves it off, so the toggle has to end up changed.
+    Goal(SNIPPING, "turn on video capture mode in Snipping Tool", ["Capture mode"], lambda done, seen: seen == "unknown" or capture_mode() != seen, capture_mode),
+    Goal(CHARMAP, "set the font to Arial Black in Character Map and then press the Select button", ["Arial Black", '"Select"']),
+    Goal(SNIPPING, "set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool", ["3 second", "Window"]),
+    Goal(CHARMAP, "press the Select button in Character Map, then press Select again", ['"Select"', '"Select"']),
+    Goal(CALCULATOR, "in Calculator, press 1 + 1 = to find the answer", ['"One"', '"Plus"', '"One"', '"Equals"'], shows_two),
+    Goal(CHARMAP, "make sure the font is set to {seen} in Character Map", [], lambda done, seen: not done and font() == seen, font),
+    Goal(CHARMAP, "make sure Advanced view is unchecked in Character Map", [], lambda done, seen: not done and advanced_view_off(), advanced_view_off),
 ]
 
 
@@ -121,12 +178,12 @@ def apply(overrides, originals):
         setattr(harness, constant, value)
 
 
-def attempt(app, goal, wanted, check, mine, windows, log=lambda kind, **fields: None):
-    """One scored run: (succeeded, turns, outcome), or None if it was skipped."""
+def attempt(goal, mine, windows, log=lambda kind, **fields: None):
+    """One scored run: (succeeded, turns, outcome), or a string saying why it was skipped."""
     mine.clear()
-    if not open_app(app, mine, windows):
-        return None
-    done, stops = [], []
+    if not open_app(goal.app, mine, windows):
+        return "app already open or not on this desktop"
+    done, stops, seen = [], [], None
 
     def on_event(event):
         if event["kind"] == "done":
@@ -137,17 +194,22 @@ def attempt(app, goal, wanted, check, mine, windows, log=lambda kind, **fields: 
             log(**traced(event))
 
     try:
+        seen = goal.watch() if goal.watch else None
+        if goal.watch and seen is None:
+            return "its starting state couldn't be read, or wasn't what the goal assumes"
         ending = harness.run(
-            goal, uia.GetRootControl(), lambda *a: harness.ask_openjev(*a, harness.MODEL),
+            goal.text.format(seen=seen), uia.GetRootControl(), lambda *a: harness.ask_openjev(*a, harness.MODEL),
             permit=lambda verb, control, text: control.ProcessId in mine, on_event=on_event,
         )
-        success = reached(wanted, done) and (not check or check())
+        success = reached(goal.wanted, done) and (not goal.check or bool(goal.check(done, seen)))
+        # Doing nothing is only right when the model chose to stop, not when the harness gave up.
+        success = success and (bool(goal.wanted) or (ending == "quit" and not stops))
     except Exception as error:  # A crashed run is a failed one, and the app still has to close.
         ending, success, stops = "error", False, [repr(error)[:80]]
     finally:
-        close_app(app)
+        close_app(goal.app)
     print(f"      {'OK  ' if success else 'MISS'} {ending}{' (' + stops[0] + ')' if stops else ''} {[d[:34] for d in done]}", flush=True)
-    log("result", success=success, ending=ending, stop=stops[0] if stops else None, actions=done, turns=len(done), optimal=len(wanted))
+    log("result", success=success, ending=ending, stop=stops[0] if stops else None, actions=done, turns=len(done), optimal=len(goal.wanted), seen=seen)
     return success, len(done), outcome(ending, stops)
 
 
@@ -173,43 +235,43 @@ def main(repeats, names):
 
     harness.actions = actions
     uia.ShowWindow = lambda handle, command: real_show(handle, command) if handle in windows else False
-    results = {(goal, name): [] for _, goal, _, _ in GOALS for name in variants}
+    results = {(goal.text, name): [] for goal in GOALS for name in variants}
     pairs = collections.defaultdict(dict)  # (repeat, goal) -> variant -> succeeded
     os.makedirs(RUNS, exist_ok=True)
     trace_path = os.path.join(RUNS, time.strftime("%Y%m%d-%H%M%S") + ".jsonl")
     with uia.UIAutomationInitializerInThread(), open(trace_path, "w", encoding="utf-8") as trace:
         for repeat in range(repeats):
-            for app, goal, wanted, check in GOALS:
-                print(f"\n[{repeat + 1}/{repeats}] {goal}", flush=True)
+            for goal in GOALS:
+                print(f"\n[{repeat + 1}/{repeats}] {goal.text}", flush=True)
                 for name, overrides in variants.items():  # Back to back, so they meet the same desktop.
                     apply(overrides, originals)
-                    harness.SHUFFLE.seed(f"{repeat}/{goal}")  # And the same option order, for as long as they walk alike.
+                    harness.SHUFFLE.seed(f"{repeat}/{goal.text}")  # And the same option order, for as long as they walk alike.
                     print(f"   {name}", flush=True)
 
                     def log(kind, **fields):
-                        trace.write(json.dumps({"kind": kind, "variant": name, "repeat": repeat, "goal": goal} | fields) + "\n")
+                        trace.write(json.dumps({"kind": kind, "variant": name, "repeat": repeat, "goal": goal.text} | fields) + "\n")
                         trace.flush()
 
-                    result = attempt(app, goal, wanted, check, mine, windows, log)
-                    if result:
-                        results[goal, name].append(result)
-                        pairs[repeat, goal][name] = result[0]
+                    result = attempt(goal, mine, windows, log)
+                    if isinstance(result, str):
+                        print(f"      SKIP {result}", flush=True)
                     else:
-                        print("      SKIP app already open or not on this desktop", flush=True)
+                        results[goal.text, name].append(result)
+                        pairs[repeat, goal.text][name] = result[0]
     apply({}, originals)
     print("\n===== results =====")
-    for _, goal, wanted, _ in GOALS:
-        print(goal)
+    for goal in GOALS:
+        print(goal.text)
         for name in variants:
-            print("  " + row(name, results[goal, name], len(wanted)))
+            print("  " + row(name, results[goal.text, name], len(goal.wanted)))
     print("multi-step goals together, turns compared per goal above")
     for name in variants:
-        runs = [results[goal, name] for _, goal, wanted, _ in GOALS if len(wanted) > 1]
+        runs = [results[goal.text, name] for goal in GOALS if len(goal.wanted) > 1]
         wins = sum(success for goal_runs in runs for success, _, _ in goal_runs)
         print(f"  {name:14} {wins}/{sum(map(len, runs))} succeeded")
     print("how runs ended")
     for name in variants:
-        endings = collections.Counter(ending for _, goal, _, _ in GOALS for _, _, ending in results[goal, name])
+        endings = collections.Counter(ending for goal in GOALS for _, _, ending in results[goal.text, name])
         print(f"  {name:14} " + ", ".join(f"{count} {ending}" for ending, count in endings.most_common()))
     print("paired against the baseline: runs only the variant won - runs only the baseline won")
     for name in variants:
