@@ -9,7 +9,7 @@ change one thing, measure again paired against the baseline, record the result e
 |-------|---------|-------|-----------|
 | Mechanics | `python test_offline.py` | any OS, no installs | the walk, limits, undo and prompt format still work |
 | Mechanics | `python test_harness.py`, `python test_app.py` | Windows, `uiautomation` | same, with the real UIA module |
-| Quality | `python benchmark.py [repeats]` | Windows desktop, Ollama, the model | whether the agent reaches real goals |
+| Quality | `python benchmark.py [repeats] [variant ...]` | Windows desktop, Ollama, the model | whether the agent reaches real goals |
 | By eye | `pythonw app.py` | same as benchmark | where on the tree a run goes wrong |
 
 The mechanics tests use a scripted stand-in for the model. Passing them says nothing about
@@ -25,13 +25,19 @@ a real run.
 
 1. Close Character Map, Snipping Tool and Calculator. The benchmark skips any app that is
    already open, because that one is yours.
-2. Run `python benchmark.py`. It opens each test app, runs each goal once per variant in
-   back-to-back pairs, and only permits actions inside the apps it opened.
+2. Run `python benchmark.py`, or name variants to run only those against the baseline
+   (`python benchmark.py 5 "final command"`). It opens each test app, runs each goal once
+   per variant back to back on the same option shuffles, and only permits actions inside
+   the apps it opened.
 3. Read three numbers per goal and variant: **succeeded** (all wanted steps happened in
    order and the screen check passed), **exact** (also in the optimal number of turns),
    and **turns**.
-4. Classify every MISS before changing anything. Use the trace once Proposal 1 lands;
-   until then, the printed ending and action list.
+4. Read "how runs ended" and the paired line under the table.
+5. Classify every MISS before changing anything, from the trace in `runs/<time>.jsonl`.
+   Each line is one event with its variant, repeat and goal: `pick` (path, choice,
+   confidence, `letter_mass`, scores, the full prompt), `done`, `stop`, and one `result`
+   per run. `runs/` isn't committed, so name the trace file in the ledger entry and copy
+   the numbers that matter.
 
 | Failure class | How it shows | Usual lever |
 |---------------|--------------|-------------|
@@ -49,8 +55,9 @@ Change the thing behind the most common class. One MISS is an anecdote.
 ## Changing
 
 1. **One variable per experiment.** If two ideas interact, test each alone first.
-2. **Put it behind a module constant** in `harness.py`, default off, so the benchmark can
-   flip it by name as a variant. Text changes count: keep the old string and select by flag.
+2. **Put it behind a module constant** in `harness.py`, default off, and add an entry to
+   `VARIANTS` in `benchmark.py` (name to the constants it overrides) so the benchmark can
+   flip it by name. Text changes count: keep the old string and select by flag.
 3. **If the benchmark can't show the failure you're fixing, add the goal first** and
    record how the baseline does on it. A change that targets a failure no goal exposes
    can't be evaluated. Prefer goals with an on-screen check over name matching.
@@ -85,7 +92,7 @@ Change the thing behind the most common class. One MISS is an anecdote.
 
 The default run is 5 repeats of 7 goals: 35 paired attempts. That is small, so compare
 pairs, not totals. Count the pairs where exactly one side succeeded: `b` where only the
-variant did, `c` where only the baseline did.
+variant did, `c` where only the baseline did. The benchmark prints this as `b-c`.
 
 - **Adopt** if the split is at least 4-0, 6-1 or 7-2 (one-sided sign test, p < 0.1), and
   no single goal went from mostly passing to mostly failing.

@@ -1,43 +1,27 @@
 # Harness change proposals
 
-Three changes from the audit of 2026-11-12 (commit `c06d9b3`). Each is a self-contained
-task for one agent. Read `WORKFLOW.md` before starting and update `LEDGER.md` when done.
+Changes left from the audit of 2026-11-12 (commit `c06d9b3`). Each is a self-contained
+task for one agent. Read `WORKFLOW.md` before starting, update `LEDGER.md` when done, and
+remove a proposal from this file once it's implemented.
 
 | # | Change | Kind | Depends on | Status |
 |---|--------|------|------------|--------|
-| 1 | Decision traces and named variants in the benchmark | measurement | none | open |
-| 2 | Show each control's current state in its option | prompt | 1 | open |
-| 3 | A "back" option, so a wrong turn isn't the end of the run | control flow | 1 | open |
+| 2 | Show each control's current state in its option | prompt | a recorded baseline | open |
+| 3 | A "back" option, so a wrong turn isn't the end of the run | control flow | a recorded baseline | open |
 
-Do 1 first. 2 and 3 are behaviour changes, and without 1 there is no way to tell whether
-they helped. 2 and 3 are independent of each other; benchmark them as separate variants,
-never together in a first run.
+Both need the first baseline run in `LEDGER.md` before they can be judged; it hasn't been
+run yet. They are independent of each other; benchmark them as separate variants
+(`VARIANTS` in `benchmark.py`), never together in a first run.
 
 ## Audit findings
 
 What the proposals are based on. Line numbers are for `c06d9b3`.
 
-**Verified by running code** (offline, against a stubbed model reply):
-
-- **F1. Off-format answers crash.** `harness.py:232-233`. If none of the top 20 tokens is
-  a bare option letter (for example the model's first token is `[` or ` A`), `probs` is
-  empty and `max()` raises `ValueError`. The benchmark swallows it as a generic `error` MISS.
-- **F2. Confidence hides off-format answers.** `harness.py:232-238`. Scores are
-  renormalised over letter tokens only. A reply with 99% on `!` and 0.1% on `A` reports
-  choice `A` with confidence 1.00. The floor can't catch a model that didn't want to
-  answer with a letter at all.
+F1 to F5 (off-format replies, nothing saved, hardcoded variants, unseeded shuffles) were
+fixed by Proposal 1, now implemented and removed from this file. See `LEDGER.md`.
 
 **Read from the code** (not yet measured on a desktop):
 
-- **F3. The benchmark keeps nothing.** `benchmark.py` prints one line per run. Prompts,
-  scores, confidences and per-step picks are discarded, so a MISS can't be diagnosed
-  afterwards and no past result exists in the repo, including the one that made
-  `HISTORY_PATHS = True` the default.
-- **F4. Variants are hardcoded.** `benchmark.py:20,141-142` can only compare the two
-  history formats. Testing any other mutation means editing the benchmark's loop.
-- **F5. Runs aren't reproducible.** `harness.py:213` shuffles with an unseeded RNG.
-  Temperature is 0, so the shuffle is the only source of variance between repeats, and the
-  two variants in a pair see different shuffles.
 - **F6. The model can't see state.** `VERBS` describes toggle as "Switch this item on or
   off" without saying which it is now. Selected items, current dropdown values and text
   box contents are also invisible. The only state the model has is its own history, so
@@ -55,61 +39,6 @@ What the proposals are based on. Line numbers are for `c06d9b3`.
 - **F10. Benchmark and default settings differ.** The benchmark runs at floor 0.25 and
   10 actions; the harness defaults are 0.5 and 5. Benchmark results describe the
   benchmark's settings only.
-
----
-
-## Proposal 1: Decision traces and named variants in the benchmark
-
-**Fixes** F1, F2, F3, F4, F5. **Files** `harness.py`, `benchmark.py`, `test_harness.py`,
-`.gitignore`, `app.py` (one guard).
-
-**Why.** Every later change needs a way to be switched on by name, compared against the
-baseline on the same shuffles, and diagnosed from a saved trace when it misses.
-
-**Changes**
-
-1. `ask_openjev` returns two more keys: `prompt` (the text sent) and `letter_mass` (sum of
-   letter-token probabilities before renormalising, 0 to 1).
-2. When no letter is in the top 20, `ask_openjev` returns `{"choice": None, "confidence": 0.0,
-   "scores": {}, "letter_mass": 0.0, "prompt": ...}` instead of raising. `walk` checks for
-   `choice is None` before the pick event, emits
-   `{"kind": "stop", "reason": "the model didn't answer with an option"}` and returns `"quit"`.
-   No pick event is emitted, so `app.py` never sees empty scores.
-3. `ask_openjev` shuffles with a `random.Random` instance held in a module variable
-   (`SHUFFLE = random.Random()`), so the benchmark can reseed it without touching the
-   global RNG.
-4. In `benchmark.py`, replace `HISTORIES` with
-   `VARIANTS = {"baseline": {}, "final command": {"HISTORY_PATHS": False}}`: name to a dict
-   of harness constants to override. Before each attempt, reset every overridden constant
-   to its saved original, apply the variant's overrides, and call
-   `harness.SHUFFLE.seed(f"{repeat}/{goal}")` so both variants of a pair start on the same
-   shuffles. Accept variant names on the command line:
-   `python benchmark.py [repeats] [variant ...]`, always including `baseline`.
-5. Write a trace to `runs/<YYYYMMDD-HHMMSS>.jsonl` (add `runs/` to `.gitignore`). One JSON
-   line per event:
-   - `pick`: variant, repeat, goal, path, choice, confidence, letter_mass, auto, scores,
-     prompt, option count.
-   - `done`, `stop`: variant, repeat, goal, plus the event's own fields.
-   - `result` (one per attempt): variant, repeat, goal, success, ending, stop reason,
-     actions list, turns, optimal.
-   Controls aren't JSON; log names only.
-6. After the results table, print per variant: a count of each ending and stop reason, and
-   the paired outcome against baseline as `wins-losses` over attempts where exactly one of
-   the pair succeeded (see `WORKFLOW.md`, "Deciding").
-
-**Tests to add** (`test_harness.py`, fake `urlopen`):
-
-- A reply with no letter token returns `choice None` and a run on it stops with the new reason
-  and takes no action.
-- A reply with `("!", 0.99), (letter, 0.001)` reports `letter_mass` near 0.001.
-- Two calls after `harness.SHUFFLE.seed("x")` give the same option order.
-
-**Done when** `python test_offline.py` prints `ok`, and one benchmark run on Windows
-writes a trace file whose `result` lines match the printed table. Paste that table into
-`LEDGER.md` as the first recorded baseline, with the `HISTORY_PATHS` comparison.
-
-**Not in scope** Changing the floor to use `letter_mass`. Record its distribution first;
-if off-format replies turn out to be real, propose a floor on it then.
 
 ---
 
@@ -147,7 +76,7 @@ more than the optimal turns) and make "already done" goals end with no action.
 3. Put state in `describe` only, **not** in `label`. `label` feeds the path, the history,
    the permission prompt, the app's tree and the benchmark's `wanted` matches; changing it
    breaks all five.
-4. Add variant `"state": {"SHOW_STATE": True}` to the benchmark.
+4. Add `"state": {"SHOW_STATE": True}` to `VARIANTS` in the benchmark.
 
 **Tests to add.** `test_harness.py` replaces `harness.actions`; do the same for
 `harness.state` (`lambda control, verb: control.states.get(verb, "")`). Assert the
@@ -170,7 +99,7 @@ that reads like an instruction; they are cut short and quoted for that reason.
 seeing nothing useful there, quit. Separating "not here" from "finished" will turn those
 into successes.
 
-**Gate: check the baseline first.** From a Proposal 1 trace, count MISS attempts that
+**Gate: check the baseline first.** From a baseline trace in `runs/`, count MISS attempts that
 ended by the model picking quit, or by "nothing usable here", at a path deeper than the
 root and before every wanted step was done. If that is under about a fifth of all MISSes,
 don't build this; record the count in `LEDGER.md` and close it.
@@ -195,7 +124,7 @@ don't build this; record the count in `LEDGER.md` and close it.
    "unreachable".
 7. `back` is a look, not an action: no permission prompt, nothing added to `done`.
    `MAX_STEPS` already bounds it.
-8. Add variant `"back": {"ALLOW_BACK": True}`.
+8. Add `"back": {"ALLOW_BACK": True}` to `VARIANTS`.
 
 **Tests to add**
 

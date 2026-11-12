@@ -1,4 +1,7 @@
-"""Real goals, real model, both kinds of history: python benchmark.py [repeats]
+"""Real goals, real model, the baseline against named variants: python benchmark.py [repeats] [variant ...]
+
+A variant is a set of harness constants to override, and with none named they all run.
+Every decision is kept in runs/<time>.jsonl, so a miss can be read back afterwards.
 
 Clicks happen only inside test apps opened here, and each run is skipped if its app is
 already open, since that one is the user's. A run succeeds if its steps all happened in
@@ -6,6 +9,10 @@ order, plus the on-screen result where there is one, so wasted actions cost turn
 than the whole run. Exact counts the runs that also took the optimal turns.
 A turn is one restart of the walk with a new action in its history.
 """
+import collections
+import json
+import os
+import re
 import statistics
 import subprocess
 import sys
@@ -17,7 +24,10 @@ import harness
 
 REPEATS = 5
 MIN_CONFIDENCE, MAX_ACTIONS = 0.25, 10  # The user's settings. Room to overshoot a four step goal.
-HISTORIES = {"final command": False, "node path": True}
+BASELINE = "baseline"
+# Name -> harness constants to override. The baseline is the harness as it ships.
+VARIANTS = {BASELINE: {}, "final command": {"HISTORY_PATHS": False}}
+RUNS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "runs")
 SEARCH_SECONDS = 1
 
 
@@ -86,8 +96,33 @@ def close_app(app):
     time.sleep(0.4)
 
 
-def attempt(app, goal, wanted, check, mine, windows):
-    """One scored run: (succeeded, turns), or None if it was skipped."""
+def traced(event):
+    """An event as it goes in the trace: names instead of controls, which aren't JSON."""
+    kept = {key: value for key, value in event.items() if key not in ("node", "options")}
+    if "options" in event:
+        kept["option_count"] = len(event["options"])
+    return kept
+
+
+def outcome(ending, stops):
+    """How a run ended, as one name to count. The confidence in a floor stop differs every time, so it's left out."""
+    return re.sub(r"confidence \d+\.\d+ is", "confidence", stops[0]) if stops else ending
+
+
+def paired(pairs, name):
+    """(wins, losses) against the baseline, over the pairs where only one of the two succeeded."""
+    both = [(pair[name], pair[BASELINE]) for pair in pairs.values() if name in pair and BASELINE in pair]
+    return sum(ours and not theirs for ours, theirs in both), sum(theirs and not ours for ours, theirs in both)
+
+
+def apply(overrides, originals):
+    """Set the harness to one variant, undoing whatever the last one changed."""
+    for constant, value in (originals | overrides).items():
+        setattr(harness, constant, value)
+
+
+def attempt(app, goal, wanted, check, mine, windows, log=lambda kind, **fields: None):
+    """One scored run: (succeeded, turns, outcome), or None if it was skipped."""
     mine.clear()
     if not open_app(app, mine, windows):
         return None
@@ -98,6 +133,8 @@ def attempt(app, goal, wanted, check, mine, windows):
             done.append(event["action"])
         elif event["kind"] == "stop":
             stops.append(event["reason"])
+        if event["kind"] in ("pick", "done", "stop"):
+            log(**traced(event))
 
     try:
         ending = harness.run(
@@ -110,18 +147,21 @@ def attempt(app, goal, wanted, check, mine, windows):
     finally:
         close_app(app)
     print(f"      {'OK  ' if success else 'MISS'} {ending}{' (' + stops[0] + ')' if stops else ''} {[d[:34] for d in done]}", flush=True)
-    return success, len(done)
+    log("result", success=success, ending=ending, stop=stops[0] if stops else None, actions=done, turns=len(done), optimal=len(wanted))
+    return success, len(done), outcome(ending, stops)
 
 
 def row(name, results, optimal):
-    wins = [turns for success, turns in results if success]
+    wins = [turns for success, turns, _ in results if success]
     exact = sum(turns == optimal for turns in wins)
     turns = f"{statistics.mean(wins):.2f}" if wins else "-"
     return f"{name:14} {len(wins)}/{len(results)} succeeded, {exact} exact, {turns} turns (optimal {optimal})"
 
 
-def main(repeats):
+def main(repeats, names):
     harness.MIN_CONFIDENCE, harness.MAX_ACTIONS = MIN_CONFIDENCE, MAX_ACTIONS
+    variants = {name: VARIANTS[name] for name in VARIANTS if name == BASELINE or name in names or not names}
+    originals = {constant: getattr(harness, constant) for overrides in variants.values() for constant in overrides}
     mine, windows, real_actions, real_show = set(), set(), harness.actions, uia.ShowWindow
 
     def actions(control):
@@ -133,30 +173,54 @@ def main(repeats):
 
     harness.actions = actions
     uia.ShowWindow = lambda handle, command: real_show(handle, command) if handle in windows else False
-    results = {(goal, name): [] for _, goal, _, _ in GOALS for name in HISTORIES}
-    with uia.UIAutomationInitializerInThread():
+    results = {(goal, name): [] for _, goal, _, _ in GOALS for name in variants}
+    pairs = collections.defaultdict(dict)  # (repeat, goal) -> variant -> succeeded
+    os.makedirs(RUNS, exist_ok=True)
+    trace_path = os.path.join(RUNS, time.strftime("%Y%m%d-%H%M%S") + ".jsonl")
+    with uia.UIAutomationInitializerInThread(), open(trace_path, "w", encoding="utf-8") as trace:
         for repeat in range(repeats):
             for app, goal, wanted, check in GOALS:
                 print(f"\n[{repeat + 1}/{repeats}] {goal}", flush=True)
-                for name, paths in HISTORIES.items():  # In pairs, so both meet the same desktop.
-                    harness.HISTORY_PATHS = paths
+                for name, overrides in variants.items():  # Back to back, so they meet the same desktop.
+                    apply(overrides, originals)
+                    harness.SHUFFLE.seed(f"{repeat}/{goal}")  # And the same option order, for as long as they walk alike.
                     print(f"   {name}", flush=True)
-                    result = attempt(app, goal, wanted, check, mine, windows)
+
+                    def log(kind, **fields):
+                        trace.write(json.dumps({"kind": kind, "variant": name, "repeat": repeat, "goal": goal} | fields) + "\n")
+                        trace.flush()
+
+                    result = attempt(app, goal, wanted, check, mine, windows, log)
                     if result:
                         results[goal, name].append(result)
+                        pairs[repeat, goal][name] = result[0]
                     else:
                         print("      SKIP app already open or not on this desktop", flush=True)
+    apply({}, originals)
     print("\n===== results =====")
     for _, goal, wanted, _ in GOALS:
         print(goal)
-        for name in HISTORIES:
+        for name in variants:
             print("  " + row(name, results[goal, name], len(wanted)))
     print("multi-step goals together, turns compared per goal above")
-    for name in HISTORIES:
+    for name in variants:
         runs = [results[goal, name] for _, goal, wanted, _ in GOALS if len(wanted) > 1]
-        wins = sum(success for goal_runs in runs for success, _ in goal_runs)
+        wins = sum(success for goal_runs in runs for success, _, _ in goal_runs)
         print(f"  {name:14} {wins}/{sum(map(len, runs))} succeeded")
+    print("how runs ended")
+    for name in variants:
+        endings = collections.Counter(ending for _, goal, _, _ in GOALS for _, _, ending in results[goal, name])
+        print(f"  {name:14} " + ", ".join(f"{count} {ending}" for ending, count in endings.most_common()))
+    print("paired against the baseline: runs only the variant won - runs only the baseline won")
+    for name in variants:
+        if name != BASELINE:
+            print(f"  {name:14} {'-'.join(map(str, paired(pairs, name)))}")
+    print(f"trace in {trace_path}")
 
 
 if __name__ == "__main__":
-    main(int(sys.argv[1]) if len(sys.argv) > 1 else REPEATS)
+    args = sys.argv[1:]
+    repeats = int(args.pop(0)) if args and args[0].isdigit() else REPEATS
+    if unknown := [name for name in args if name not in VARIANTS]:
+        sys.exit(f"unknown variant {unknown[0]!r}, choose from: {', '.join(VARIANTS)}")
+    main(repeats, args)

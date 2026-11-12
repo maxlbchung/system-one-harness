@@ -20,7 +20,7 @@ Nothing is **measured** yet. Seeded on 2026-11-12 from the code and comments at 
 | Shuffle options on every call | claimed | "This kind of model leans toward the first option" (`ask_openjev`). Size of the lean wasn't recorded. |
 | `quit` always offered, listed first before the shuffle | reasoned | The model always has a way to stop. |
 | Restart from the desktop after each action | reasoned | The tree may have changed, so nothing stale is reused. Costs a full descent per action. |
-| History as node path plus action (`HISTORY_PATHS = True`) | claimed | It's the default and the benchmark was built to compare it with action-only history. **The result was never written down.** First thing to record once Proposal 1 lands. |
+| History as node path plus action (`HISTORY_PATHS = True`) | claimed | It's the default and the benchmark was built to compare it with action-only history. **The result was never written down.** The default benchmark run now compares the two; record it as the first log entry. |
 | Preview of names inside a container on its `open` option | claimed | Lets unnamed containers be told apart. 24 names, 30 characters, 60 nodes visited. |
 | Skip the model when the only move is to open a lone child | reasoned | Saves a call; no decision to make. |
 | No `open` on items that can be invoked, toggled or expanded | claimed | Inside is only an icon and caption, a dead end. |
@@ -37,9 +37,9 @@ Nothing is **measured** yet. Seeded on 2026-11-12 from the code and comments at 
 | Method | Evidence | Note |
 |--------|----------|------|
 | `FindAll` to list children | claimed | Reads a flatter tree than the walk on 30% of nodes (`listed`). |
-| Renormalising confidence over letter tokens only | reasoned, reproduced offline | A reply with 99% on a non-letter and 0.1% on `A` reports confidence 1.00. Crashes when no letter is in the top 20. Fix is Proposal 1. |
+| Renormalising confidence over letter tokens only | reasoned, reproduced offline | A reply with 99% on a non-letter and 0.1% on `A` reports confidence 1.00. Still how confidence works; `letter_mass` is now returned and traced beside it so the size of the problem can be measured. A reply with no letter at all used to crash and now stops the run. |
 | Substring matching on action names as a success check | reasoned | Passes a toggle flipped twice. Proposal 2, step A. |
-| Comparing against benchmark numbers from an earlier day | reasoned | Nothing is seeded or saved, and the desktop drifts. Pair within one run. |
+| Comparing against benchmark numbers from an earlier day | reasoned | The desktop, apps and model build drift. Pair within one run; shuffles are seeded per repeat and goal for that. |
 
 ## Known limits (accepted for now)
 
@@ -82,4 +82,9 @@ Verdict:     adopted | rejected | inconclusive
 Notes:       <what surprised you; trace file name>
 ```
 
-No entries yet.
+### 2026-11-12  Benchmark instrumented (no run yet)
+Not an experiment. The benchmark now takes named variants, seeds the option shuffle per
+repeat and goal, writes every decision to `runs/<time>.jsonl`, and prints how runs ended
+and the paired split. Checked offline only. **Owed: one run of `python benchmark.py` on
+Windows**, recorded here as the first baseline and the `HISTORY_PATHS` comparison, with
+the spread of `letter_mass` from the trace.

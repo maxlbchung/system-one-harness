@@ -37,6 +37,7 @@ PREVIEW_NAMES, PREVIEW_NAME, PREVIEW_VISITS = 24, 30, 60
 # ponytail: one floor for every step, set from 60 dry runs on one desktop, retune on wider goals
 MIN_CONFIDENCE = 0.5
 HISTORY_PATHS = True  # History shows the nodes picked on the way to each action, not just the action.
+SHUFFLE = random.Random()  # Its own generator, so the benchmark can seed the option order and nothing else.
 
 INSTRUCTIONS = "Choose the best next step. Don't repeat what's done. Quit only when all of it is done or if goal is unreachable."
 
@@ -209,8 +210,10 @@ def ask_openjev(goal, path, opts, text, done, model):
 
     Shuffled because this kind of model leans toward the first option. Scores are each
     option's share of the probability, and options outside the model's top 20 have none.
+    letter_mass is how much of the model's probability went to option letters at all,
+    and the choice is None when none of it did.
     """
-    names = random.sample(list(opts), len(opts))
+    names = SHUFFLE.sample(list(opts), len(opts))
     letters = dict(zip(LETTERS, names))
     listing = "\n".join(f"[{k}] {n}: {describe(opts[n][0], opts[n][1], text)}" for k, n in letters.items())
     steps = [" > ".join(nodes if HISTORY_PATHS else nodes[-1:]) for nodes in done]
@@ -230,6 +233,8 @@ def ask_openjev(goal, path, opts, text, done, model):
     with urllib.request.urlopen(request, timeout=MODEL_TIMEOUT) as response:
         top = json.load(response)["logprobs"][0]["top_logprobs"]
     probs = {t["token"]: math.exp(t["logprob"]) for t in top if t["token"] in letters}
+    if not probs:
+        return {"choice": None, "confidence": 0.0, "scores": {}, "letter_mass": 0.0, "prompt": prompt}
     best, total = max(probs, key=probs.get), sum(probs.values())
     share, chance = probs[best] / total, 1 / len(names)
     return {
@@ -237,6 +242,9 @@ def ask_openjev(goal, path, opts, text, done, model):
         # Same confidence as Jev: 0 for an even spread, 1 for a single peak.
         "confidence": (share - chance) / (1 - chance),
         "scores": {letters[k]: p / total for k, p in probs.items()},
+        # Confidence only compares the letters, so this is what tells an answer that wasn't one.
+        "letter_mass": total,
+        "prompt": prompt,
     }
 
 
@@ -283,6 +291,9 @@ def walk(goal, root, ask, text, permit, on_event, cancelled, undo):
         # Checked after the slow model call, so a cancel during it can't reach an action.
         if cancelled():
             return "cancelled"
+        if pick["choice"] is None:
+            on_event({"kind": "stop", "reason": "the model didn't answer with an option"})
+            return "quit"
         verb, control, act = opts[pick["choice"]]
         on_event({"kind": "pick", "node": node, "path": path, "auto": auto, "options": opts, **pick})
         if pick["confidence"] < MIN_CONFIDENCE:

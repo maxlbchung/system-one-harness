@@ -371,6 +371,40 @@ harness.ask_openjev("save it", ["Desktop", "App"], harness.options(window, "hi")
 assert prompts[-1].startswith("State:\nDone so far: Click X; Click Y\nLocation: Desktop > App\n\n")
 harness.HISTORY_PATHS = True
 
+# The answer comes back with the prompt that was sent and how much of the reply was option letters.
+urllib.request.urlopen = fake_urlopen
+answer = harness.ask_openjev("save it", ["Desktop", "App"], harness.options(window, "hi"), "hi", [], "m")
+assert answer["prompt"] == prompts[-1] and abs(answer["letter_mass"] - 1) < 1e-9
+
+
+def reply(*tokens):
+    """A model reply holding these (token, probability) pairs."""
+    top = [{"token": token, "logprob": math.log(p)} for token, p in tokens]
+    return lambda request, timeout: io.BytesIO(json.dumps({"logprobs": [{"top_logprobs": top}]}).encode())
+
+
+# A reply that's nearly all something else still picks a letter, and letter_mass is what gives it away.
+urllib.request.urlopen = reply(("!", 0.99), ("A", 0.001))
+answer = harness.ask_openjev("save it", ["Desktop", "App"], harness.options(window), None, [], "m")
+assert answer["confidence"] == 1 and abs(answer["letter_mass"] - 0.001) < 1e-9
+
+# A reply with no option letter at all is no choice, and the run stops there without acting.
+urllib.request.urlopen = reply(("[", 0.9), (" A", 0.1))
+answer = harness.ask_openjev("save it", ["Desktop", "App"], harness.options(window), None, [], "m")
+assert answer["choice"] is None and answer["letter_mass"] == 0 and answer["prompt"].startswith("State:\n")
+events = []
+assert harness.run("save it", root, lambda *a: harness.ask_openjev(*a, "m"), on_event=events.append) == "quit"
+assert [e["kind"] for e in events] == ["at", "stop"] and events[-1]["reason"] == "the model didn't answer with an option"
+assert clicks == []
+
+# The option order can be seeded, without the seed reaching anything else.
+orders = []
+for _ in range(2):
+    harness.SHUFFLE.seed("0/save it")
+    orders.append(harness.ask_openjev("x", ["Desktop"], harness.options(twins), None, [], "m")["prompt"])
+orders.append(harness.ask_openjev("x", ["Desktop"], harness.options(twins), None, [], "m")["prompt"])
+assert orders[0] == orders[1] != orders[2]
+
 # The model list comes from Ollama, and is empty if Ollama isn't running.
 urllib.request.urlopen = lambda url, timeout: io.BytesIO(json.dumps({"models": [{"name": "a:latest"}, {"name": "b:q4"}]}).encode())
 assert harness.installed_models() == ["a", "b:q4"]
@@ -388,5 +422,32 @@ wanted = ['"One"', '"Plus"', '"One"']
 assert benchmark.reached(wanted, ['Click "One"', 'Click "Two"', 'Click "Plus"', 'Click "One"'])
 assert not benchmark.reached(wanted, ['Click "One"', 'Click "Plus"'])
 assert not benchmark.reached(wanted, ['Click "Plus"', 'Click "One"', 'Click "One"'])
+
+
+# The trace keeps an event's names and numbers, and counts the options rather than holding their controls.
+event = {"kind": "pick", "node": root, "path": ["Desktop"], "options": harness.options(root), "choice": OPEN, "confidence": 0.9}
+assert benchmark.traced(event) == {"kind": "pick", "path": ["Desktop"], "choice": OPEN, "confidence": 0.9, "option_count": 3}
+assert json.dumps(benchmark.traced(event))
+
+# Runs are counted by how they ended, with every floor stop under one name.
+assert benchmark.outcome("quit", []) == "quit" and benchmark.outcome("error", ["ValueError()"]) == "ValueError()"
+assert benchmark.outcome("quit", ["confidence 0.21 is below the floor of 0.25"]) == "confidence below the floor of 0.25"
+
+# A variant is compared on the pairs where only one side succeeded. A skipped half leaves no pair.
+pairs = {
+    (0, "a"): {"baseline": True, "new": True},
+    (0, "b"): {"baseline": False, "new": True},
+    (1, "a"): {"baseline": True, "new": False},
+    (1, "b"): {"baseline": False, "new": True},
+    (2, "a"): {"new": True},
+}
+assert benchmark.paired(pairs, "new") == (2, 1)
+
+# Each variant starts from the shipped constants, so one's overrides never leak into the next.
+originals = {"HISTORY_PATHS": harness.HISTORY_PATHS}
+benchmark.apply(benchmark.VARIANTS["final command"], originals)
+assert harness.HISTORY_PATHS is False
+benchmark.apply(benchmark.VARIANTS[benchmark.BASELINE], originals)
+assert harness.HISTORY_PATHS is True
 
 print("ok")
