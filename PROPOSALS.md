@@ -1,147 +1,111 @@
 # Harness change proposals
 
-Changes left from the audit of 2026-11-12 (commit `c06d9b3`). Each is a self-contained
-task for one agent. Read `WORKFLOW.md` before starting, update `LEDGER.md` when done, and
-remove a proposal from this file once it's implemented.
+Changes from the audit of 2026-11-12. Read `WORKFLOW.md` before working on one, update
+`LEDGER.md` after every benchmark run, and remove a proposal from this file once its
+verdict is recorded and its default is set.
 
-| # | Change | Kind | Depends on | Status |
-|---|--------|------|------------|--------|
-| 2 | Show each control's current state in its option | prompt | a recorded baseline | open |
-| 3 | A "back" option, so a wrong turn isn't the end of the run | control flow | a recorded baseline | open |
+| # | Change | Flag | Variant | Status |
+|---|--------|------|---------|--------|
+| 2 | Show each control's current state in its option | `SHOW_STATE` | `state` | built, off, awaiting benchmark |
+| 3 | A "back" option, so a wrong turn isn't the end of the run | `ALLOW_BACK` | `back` | built, off, awaiting benchmark |
 
-Both need the first baseline run in `LEDGER.md` before they can be judged; it hasn't been
-run yet. They are independent of each other; benchmark them as separate variants
-(`VARIANTS` in `benchmark.py`), never together in a first run.
+Proposal 1 (traces and named variants) is done and removed. Both changes here are in the
+code, switched off, and pass `test_offline.py`. Neither has run against a real desktop or
+model. What's left for each is the benchmark and a verdict.
 
-## Audit findings
+## Run this first
 
-What the proposals are based on. Line numbers are for `c06d9b3`.
+On the Windows machine, with Character Map, Snipping Tool and Calculator closed:
 
-F1 to F5 (off-format replies, nothing saved, hardcoded variants, unseeded shuffles) were
-fixed by Proposal 1, now implemented and removed from this file. See `LEDGER.md`.
+```
+python benchmark.py
+```
 
-**Read from the code** (not yet measured on a desktop):
+That is 5 repeats of 9 goals for the baseline and all three variants, 180 runs. To run
+one variant against the baseline: `python benchmark.py 5 state`.
 
-- **F6. The model can't see state.** `VERBS` describes toggle as "Switch this item on or
-  off" without saying which it is now. Selected items, current dropdown values and text
-  box contents are also invisible. The only state the model has is its own history, so
-  "turn on X" when X is already on gets toggled off.
-- **F7. Success checks are loose.** Six of seven goals pass on substring matches against
-  action names (`benchmark.py:41-49`). "turn on video capture mode" passes if any action
-  mentions "Capture mode", including toggling it twice. No goal has a correct answer of
-  "do nothing".
-- **F8. "quit" means two things.** `INSTRUCTIONS` says quit when done *or* when the goal
-  is unreachable. Deep in the wrong branch, the goal is unreachable *from here*, so quit is
-  the right pick locally and ends the whole run. There is no way back up
-  (`test_harness.py:166`), and a dead end or one low-confidence step also ends the run.
-- **F9. Options past 52 are dropped silently**, last first (`harness.py:201-204`). Not
-  proposed here; listed in `LEDGER.md` as an open idea.
-- **F10. Benchmark and default settings differ.** The benchmark runs at floor 0.25 and
-  10 actions; the harness defaults are 0.5 and 5. Benchmark results describe the
-  benchmark's settings only.
+Then, for each variant, follow "Deciding" in `WORKFLOW.md`, write the entry in
+`LEDGER.md`, and either flip the flag's default and delete the old path, or delete the
+new code.
 
----
+## Check on the first run
+
+These were written without a Windows desktop and are guesses about real controls. Each
+fails loudly rather than scoring wrongly, but look for them:
+
+- **Skipped goals.** The two already-done goals print
+  `SKIP its starting state couldn't be read` if `benchmark.font()` can't find a ComboBox
+  with a value in Character Map, or `benchmark.advanced_view_off()` can't find a toggle
+  named "Advanced view" that is off. Fix the finder, or swap the goal for another control
+  that is already set when its app opens.
+- **`"seen": "unknown"` in the trace** on the video capture goal means the toggle named
+  "Capture mode" wasn't found, and that goal is still being scored on action names alone.
+- **`Now:` lines in the `state` variant's prompts.** Search a trace for `Now:`. If none
+  appear, `harness.state` isn't reading the patterns these apps expose. If a dropdown's
+  value is missing, it may need `SelectionPattern` instead of `ValuePattern`.
+- **The app's tree** shows a `back` pick's score on that level's quit row, since back has
+  no row of its own. Cosmetic, and only with `ALLOW_BACK` on.
 
 ## Proposal 2: Show each control's current state in its option
 
-**Fixes** F6, F7. **Files** `harness.py`, `benchmark.py`, `test_harness.py`.
-
 **Hypothesis.** The model repeats or reverses actions because it can't see what is
-already set. Telling it the current state will cut overshoot (runs that succeed but take
-more than the optimal turns) and make "already done" goals end with no action.
+already set. Telling it will cut overshoot and make already-done goals end with no action.
 
-**Step A: make the benchmark able to see the failure** (land and baseline this before B)
+**What was built**
 
-1. Let a goal's check see the run: call `check(done)` instead of `check()`.
-2. Add an end-state check to "turn on video capture mode": read the toggle's
-   `TogglePattern.ToggleState` after the run.
-3. Add two goals whose right answer is no action, checked by `done == []`:
-   one for a dropdown already at the asked value, one for a toggle already in the asked
-   state. Pick them from the three test apps on the Windows machine and confirm the
-   default state there; for example "make sure the snip delay is off in Snipping Tool" if
-   its default is no delay. Their optimal turns is 0.
-4. Run the benchmark. Record in `LEDGER.md` how baseline does on the new goals. If it
-   already passes them all, stop: the hypothesis is wrong, record that and close this.
+- `harness.state(control, verb)`: `on`, `off` or `mixed` for toggle; `selected` for
+  select; the quoted current value for expand and type. With `SHOW_STATE` on, `describe`
+  appends ` Now: <state>.` to the option. `label` is untouched.
+- Benchmark goals are now `Goal` tuples with `watch` (reads the screen before the run)
+  and `check(done, seen)` (reads it after).
+- The video capture goal now also needs the toggle to end up changed, so toggling twice
+  no longer passes.
+- Two already-done goals, optimal turns 0: the font is already what's asked, and Advanced
+  view is already unchecked. They pass only if the model itself quits with nothing done
+  and the control unchanged. A stop by the harness (low confidence, off-format) is a MISS.
 
-**Step B: the change**
+**Judge it on** the two already-done goals and on exact counts for the multi-step goals.
+If the baseline already passes the already-done goals every time, the hypothesis is
+wrong: record that and delete `state`, `SHOW_STATE` and the variant.
 
-1. Add `state(control, verb)` to `harness.py`, returning a short string or `""`:
-   - toggle: `on`, `off` or `mixed` from `TogglePattern.ToggleState`
-   - select: `selected` when `SelectionItemPattern.IsSelected`
-   - expand: the current value, from `ValuePattern.Value` if the control has one
-   - type: the current text from `ValuePattern.Value`, cut to `PREVIEW_NAME` characters
-   Wrap reads in `except COMError` and return `""`.
-2. In `describe`, append ` Now: {state}.` when state isn't empty and `SHOW_STATE` is true.
-   Add `SHOW_STATE = False` as a module constant.
-3. Put state in `describe` only, **not** in `label`. `label` feeds the path, the history,
-   the permission prompt, the app's tree and the benchmark's `wanted` matches; changing it
-   breaks all five.
-4. Add `"state": {"SHOW_STATE": True}` to `VARIANTS` in the benchmark.
-
-**Tests to add.** `test_harness.py` replaces `harness.actions`; do the same for
-`harness.state` (`lambda control, verb: control.states.get(verb, "")`). Assert the
-prompt contains `Now: on.` for a toggle with the flag on, nothing with it off, and that
-`label` output is unchanged either way.
-
-**Done when** baseline and `state` have been run paired, the result is in `LEDGER.md`,
-and `SHOW_STATE`'s default matches the verdict.
-
-**Risks.** Longer option lines dilute attention on long lists. Values may contain text
-that reads like an instruction; they are cut short and quoted for that reason.
-
----
+**Risks.** Longer option lines on long lists. Values are app text, so they're quoted and
+cut to `PREVIEW_NAME` characters.
 
 ## Proposal 3: A "back" option, so a wrong turn isn't the end of the run
-
-**Fixes** F8. **Files** `harness.py`, `test_harness.py`, `benchmark.py`.
 
 **Hypothesis.** Some MISSes are runs that opened the wrong branch and then, correctly
 seeing nothing useful there, quit. Separating "not here" from "finished" will turn those
 into successes.
 
-**Gate: check the baseline first.** From a baseline trace in `runs/`, count MISS attempts that
-ended by the model picking quit, or by "nothing usable here", at a path deeper than the
-root and before every wanted step was done. If that is under about a fifth of all MISSes,
-don't build this; record the count in `LEDGER.md` and close it.
+**Look at the baseline first.** In the trace, count baseline MISSes that ended with the
+model picking quit, or with "nothing usable here", below the root and before every wanted
+step was done. If that is under about a fifth of baseline MISSes there is little for this
+to fix, and a small paired win is more likely noise.
 
-**Changes**
+**What was built** (all only with `ALLOW_BACK` on)
 
-1. Add a verb: `"back": "What's needed isn't here. Go back and look elsewhere."`
-2. `options` takes the depth and offers `back` after `quit` when depth > 0 and
-   `ALLOW_BACK` is true. Add `ALLOW_BACK = False` as a module constant.
-3. `walk` keeps a stack of `(node, path)` instead of only the current pair. On `back`: pop
-   to the parent, and add the node just left to a `skipped` set that `options` leaves out
-   for the rest of this walk, so the model can't bounce between two branches. `skipped`
-   clears on restart. Compare elements with `uia.ControlsAreSame`, not `is` (wrappers
-   differ per read).
-4. Going back out of something the walk restored or expanded reverses it: pop and run its
-   `undo` entry.
-5. A dead end ("nothing usable here") at depth > 0 with `ALLOW_BACK` on goes back
-   automatically instead of stopping. It still counts as a step.
-6. With `ALLOW_BACK` on, use this instruction text:
-   `"Choose the best next step. Don't repeat what's done. Go back if what's needed isn't here. Quit only when all of it is done."`
-   Keep the current text when it's off. At the root there is no back, so quit still covers
-   "unreachable".
-7. `back` is a look, not an action: no permission prompt, nothing added to `done`.
-   `MAX_STEPS` already bounds it.
-8. Add `"back": {"ALLOW_BACK": True}` to `VARIANTS`.
+- `back` is offered after `quit` at every level below the root. Picking it returns to the
+  level above, which stops offering the branch just left until the next action restarts
+  the walk. No permission prompt, nothing added to the history.
+- Backing out of a window the walk restored minimizes it again; out of a dropdown it
+  expanded, collapses it.
+- A dead end below the root goes back by itself instead of stopping the run. It counts as
+  a step, so `MAX_STEPS` still bounds it.
+- Where back is offered the prompt uses `INSTRUCTIONS_BACK`. At the root the original
+  instructions stay, so quit still covers an unreachable goal. This differs from the
+  first spec, which used the new text everywhere.
+- Pick events now carry a copy of the path, since the path can shrink.
 
-**Tests to add**
+**Judge it on** the paired split, and on "how runs ended": fewer early quits is the
+point, and more step-limit stops or more confidence-floor stops is the cost.
 
-- Wrong branch, then back, then the right branch, reaches the action; the skipped branch
-  is missing from the second listing at the parent.
-- `back` isn't offered at the root, or anywhere with the flag off.
-- Back out of a restored minimized window minimizes it again; out of an expanded dropdown
-  collapses it.
-- A dead end at depth 2 backs out and the run continues; with the flag off the existing
-  dead-end test still passes unchanged.
-- Update the auto-descend check (`harness.py:281`): a lone child plus `back` should still
-  descend without a model call.
+**Risks.** A third option at every level gives an unsure model another place to put
+probability, lowering confidence where the baseline was right. Low-confidence stops still
+end the run; if they dominate after this, going back on low confidence is the follow-up.
 
-**Done when** paired results for baseline and `back` are in `LEDGER.md`, with the stop
-reason counts side by side, and `ALLOW_BACK`'s default matches the verdict.
+## Audit findings still open
 
-**Risks.** A third always-present option gives an unsure model another place to put
-probability: watch for more step-limit stops and for lower confidence at levels where the
-baseline was right. Low-confidence stops are deliberately left alone here; if they
-dominate the MISSes after this, going back on low confidence is the follow-up.
+- **Options past 52 are dropped silently**, last first. Listed in `LEDGER.md` as an idea.
+- **Benchmark and default settings differ.** The benchmark runs at floor 0.25 and 10
+  actions; the harness defaults are 0.5 and 5. Results describe the benchmark's settings.
+- **Five goals still pass on action names alone**, with no on-screen check.

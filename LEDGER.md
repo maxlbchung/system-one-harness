@@ -38,7 +38,7 @@ Nothing is **measured** yet. Seeded on 2026-11-12 from the code and comments at 
 |--------|----------|------|
 | `FindAll` to list children | claimed | Reads a flatter tree than the walk on 30% of nodes (`listed`). |
 | Renormalising confidence over letter tokens only | reasoned, reproduced offline | A reply with 99% on a non-letter and 0.1% on `A` reports confidence 1.00. Still how confidence works; `letter_mass` is now returned and traced beside it so the size of the problem can be measured. A reply with no letter at all used to crash and now stops the run. |
-| Substring matching on action names as a success check | reasoned | Passes a toggle flipped twice. Proposal 2, step A. |
+| Substring matching on action names as a success check | reasoned | Passes a toggle flipped twice. The video capture goal now reads the toggle; five goals still rely on names alone. |
 | Comparing against benchmark numbers from an earlier day | reasoned | The desktop, apps and model build drift. Pair within one run; shuffles are seeded per repeat and goal for that. |
 
 ## Known limits (accepted for now)
@@ -47,8 +47,8 @@ Nothing is **measured** yet. Seeded on 2026-11-12 from the code and comments at 
 - Past 20 options, confidence reads slightly high (Ollama's logprob cap).
 - A menu that opens outside its button can't be reached.
 - One confidence floor for every level, whatever the option count.
-- No way back up the tree; a dead end or wrong branch ends the run (Proposal 3).
-- The model sees no control state (Proposal 2).
+- No way back up the tree; a dead end or wrong branch ends the run. `ALLOW_BACK` changes this, off until benchmarked.
+- The model sees no control state. `SHOW_STATE` changes this, off until benchmarked.
 
 ## Open ideas (untested)
 
@@ -81,6 +81,13 @@ By class:    <failure class counts that moved>
 Verdict:     adopted | rejected | inconclusive
 Notes:       <what surprised you; trace file name>
 ```
+
+### 2026-11-12  `state` and `back` built (no run yet)
+Not an experiment. `SHOW_STATE` and `ALLOW_BACK` are in the harness, both off, with
+variants `state` and `back`. The benchmark gained two already-done goals and an on-screen
+check on the video capture goal. Checked offline only; the readers for real controls are
+unverified, see "Check on the first run" in `PROPOSALS.md`. **Owed: verdicts for both,
+from the same run as the baseline below.**
 
 ### 2026-11-12  Benchmark instrumented (no run yet)
 Not an experiment. The benchmark now takes named variants, seeds the option shuffle per
