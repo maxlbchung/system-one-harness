@@ -54,6 +54,9 @@ Change the thing behind the most common class. One MISS is an anecdote.
 
 ## Changing
 
+Before proposing or building anything, read "All tests so far" in `LEDGER.md`. Don't rerun a
+comparison listed there unless you say what's different this time.
+
 1. **One variable per experiment.** If two ideas interact, test each alone first.
 2. **Put it behind a module constant** in `harness.py`, default off, and add an entry to
    `VARIANTS` in `benchmark.py` (name to the constants it overrides) so the benchmark can

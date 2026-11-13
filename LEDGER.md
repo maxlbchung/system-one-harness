@@ -10,7 +10,42 @@ Evidence levels, strongest first:
 - **reasoned**: follows from how the code or API works; not benchmarked.
 - **untested**: an idea.
 
-Nothing is **measured** yet. Seeded on 2026-11-12 from the code and comments at `c06d9b3`.
+Seeded on 2026-11-12 from the code and comments at `c06d9b3`. That audit missed the
+experiments below from 2026-11-02 to 2026-11-05, which were on branch
+`claude/peaceful-feynman-2emz8i` and never merged (details in that branch's `EXPERIMENTS.md`).
+
+## All tests so far
+
+**Check this table before proposing a change.** Every comparison ever run, on any branch.
+All so far ran on simulated desktops (`sim/`), not Windows. Real = openjev-flash-9b Q4_K_M
+in Ollama; proxy = the lexical stand-in in `sim/proxy_model.py`, which can't judge prompt
+wording, state text or "back". Floor 0.25, 10 actions, paired seeds unless noted.
+
+| # | Date | Change tested (flag) | Model, runs | Baseline | Variant | Verdict | Where |
+|---|------|----------------------|-------------|----------|---------|---------|-------|
+| P0 | 11-03 | Final-command vs node-path history (`HISTORY_PATHS`) | proxy, 60/goal | node path 194/240 multi-step | final command 148/240 | node path kept | peaceful-feynman |
+| R0 | 11-03 | Final-command vs node-path history (`HISTORY_PATHS`) | real, 120 | node path 38/60 | final command 31/60 | node path kept | peaceful-feynman |
+| R1 | 11-04 | Control state in labels (`SHOW_STATE`) | real, 3/goal | 22/33 | 22/33 | tie, model ignores it | peaceful-feynman |
+| R1 | 11-04 | Stricter wording on quitting (`INSTRUCTIONS`) | real, 3/goal | 22/33 | 19/33 | rejected | peaceful-feynman |
+| R1 | 11-04 | Stay where it acted, with a back option (`RESUME`) | real, 3/goal | 22/33 | 13/33 | rejected: repeats the same press | peaceful-feynman |
+| R2 | 11-05 | What each action changed, in the history (`SHOW_EFFECTS`) | real, 3/goal | 22/33 | **27/33** | **best so far; not on this branch** | peaceful-feynman |
+| R2 | 11-05 | State + effects | real, 3/goal | 22/33 | 26/33 | no gain over effects | peaceful-feynman |
+| R2 | 11-05 | Separate yes/no "is it done?" call (`DONE_CHECK`) | real, 3/goal | 22/33 | 24/33 | trade-off: fixes 9-4=, breaks Select twice | peaceful-feynman |
+| R2 | 11-05 | State + done check | real, 3/goal | 22/33 | 24/33 | no gain | peaceful-feynman |
+| R3 | 11-05 | Effects + done check | real, 3/goal | 22/33 | 27/33 | ties effects, more calls | peaceful-feynman |
+| P1 | 11-05 | Every configuration above | proxy, 2,160 | – | ties on prompt changes | proxy can't judge | peaceful-feynman |
+| P2 | 11-05 | Confidence floor 0.25 vs 0.5 | proxy, 1,400 | 0.25: 93% at noise 1 | 0.5: 78% | keep 0.25 | peaceful-feynman |
+| R4 | 11-13 | Final-command history (`HISTORY_PATHS=False`) | real, 3/goal | 22/39 | 18/39 (paired 1-5) | rejected again | this branch |
+| R4 | 11-13 | Control state in options (`SHOW_STATE`) | real, 3/goal | 22/39 | 22/39 (0-0) | tie again, model ignores it | this branch |
+| R4 | 11-13 | Back option, restart from desktop (`ALLOW_BACK`) | real, 3/goal | 22/39 | 20/39 (2-4) | no gain | this branch |
+
+R1–R3 used 11 goals (`benchmark.py`'s 7 then plus 4 extras); R4 used `benchmark.py`'s current 9
+(two already-done goals added) plus 4 extras. Totals across rounds aren't comparable; compare
+within a row.
+
+**So R4 repeated R0 and R1.** `final command` and `state` had already lost or tied, and `back`
+is close to `RESUME`, which lost. The one change that has won, `SHOW_EFFECTS`, was listed
+below as an untested idea and isn't in this harness.
 
 ## Works (in the harness now)
 
@@ -20,7 +55,7 @@ Nothing is **measured** yet. Seeded on 2026-11-12 from the code and comments at 
 | Shuffle options on every call | claimed | "This kind of model leans toward the first option" (`ask_openjev`). Size of the lean wasn't recorded. |
 | `quit` always offered, listed first before the shuffle | reasoned | The model always has a way to stop. |
 | Restart from the desktop after each action | reasoned | The tree may have changed, so nothing stale is reused. Costs a full descent per action. |
-| History as node path plus action (`HISTORY_PATHS = True`) | claimed | It's the default and the benchmark was built to compare it with action-only history. **The result was never written down.** The default benchmark run now compares the two; record it as the first log entry. |
+| History as node path plus action (`HISTORY_PATHS = True`) | measured (sim) | Beat action-only history in P0, R0 and R4. See "All tests so far". |
 | Preview of names inside a container on its `open` option | claimed | Lets unnamed containers be told apart. 24 names, 30 characters, 60 nodes visited. |
 | Skip the model when the only move is to open a lone child | reasoned | Saves a call; no decision to make. |
 | No `open` on items that can be invoked, toggled or expanded | claimed | Inside is only an icon and caption, a dead end. |
@@ -62,7 +97,7 @@ Promote to `PROPOSALS.md` only with a failure class from a trace to justify it.
 - Scale the confidence floor by option count.
 - Go back, instead of stopping, on a low-confidence step.
 - End the prompt with an explicit answer cue so a bare letter is the likeliest next token.
-- Tell the model what an action changed (the before and after state) in the history.
+- ~~Tell the model what an action changed in the history.~~ Tested: `SHOW_EFFECTS`, R2, 27/33 vs 22/33. Port it from `claude/peaceful-feynman-2emz8i`.
 - Cache previews within one walk to cut UIA reads.
 
 ## Experiment log
