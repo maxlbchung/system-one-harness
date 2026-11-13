@@ -118,3 +118,112 @@ settings: floor 0.25, action limit 10, step limit 60, real model openjev-flash-9
       MISS back          quit 19 calls 140s ['Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM', 'Toggle Button "Capture mode" id=CaptureM'] | turn on video capture mode in Snipping Tool
       OK   baseline      quit 6 calls 46s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
       OK   final command quit 6 calls 45s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   state         quit 6 calls 46s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   back          quit 6 calls 48s ['Select ListItem "Arial Black"', 'Click Button "Select" id=102'] | set the font to Arial Black in Character Map and then press the Select button
+      OK   baseline      quit 9 calls 59s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   final command quit 9 calls 55s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   state         quit 9 calls 59s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      OK   back          quit 9 calls 60s ['Select ListItem "Delay snip for 3 second', 'Select ListItem "Window"'] | set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+      MISS baseline      quit 5 calls 39s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS final command quit 5 calls 38s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS state         quit 5 calls 39s ['Click Button "Copy" id=103', 'Click Button "Select" id=102'] | press the Select button in Character Map, then press Select again
+      MISS back          quit 3 calls 24s ['Click Button "Copy" id=103'] | press the Select button in Character Map, then press Select again
+      MISS baseline      quit 9 calls 68s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS final command quit 14 calls 105s ['Click Button "One" id=num1Button', 'Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS state         quit 9 calls 69s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 1 + 1 = to find the answer
+      OK   back          quit 17 calls 149s ['Click Button "One" id=num1Button', 'Click Button "Plus" id=plusButton', 'Click Button "One" id=num1Button', 'Click Button "Equals" id=equalsButton'] | in Calculator, press 1 + 1 = to find the answer
+      MISS baseline      quit 4 calls 32s ['Select ListItem "Arial"'] | make sure the font is set to {seen} in Character Map
+      MISS final command quit 5 calls 38s ['Select ListItem "Arial"'] | make sure the font is set to {seen} in Character Map
+      MISS state         quit 4 calls 32s ['Select ListItem "Arial"'] | make sure the font is set to {seen} in Character Map
+      MISS back          quit 4 calls 32s ['Select ListItem "Arial"'] | make sure the font is set to {seen} in Character Map
+      MISS baseline      quit 3 calls 24s ['Toggle CheckBox "Advanced view" id=109'] | make sure Advanced view is unchecked in Character Map
+      MISS final command quit 5 calls 40s ['Toggle CheckBox "Advanced view" id=109', 'Toggle CheckBox "Advanced view" id=109'] | make sure Advanced view is unchecked in Character Map
+      MISS state         quit 3 calls 24s ['Toggle CheckBox "Advanced view" id=109'] | make sure Advanced view is unchecked in Character Map
+      MISS back          quit 3 calls 24s ['Toggle CheckBox "Advanced view" id=109'] | make sure Advanced view is unchecked in Character Map
+      OK   baseline      quit 3 calls 23s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   final command quit 3 calls 22s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   state         quit 3 calls 24s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   back          quit 3 calls 24s ['Toggle CheckBox "Advanced view" id=109'] | turn on Advanced view in Character Map
+      OK   baseline      quit 5 calls 32s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   final command quit 5 calls 31s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   state         quit 5 calls 32s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      OK   back          quit 5 calls 31s ['Select ListItem "Full screen"'] | set the snipping area to Full screen in Snipping Tool
+      MISS baseline      quit 17 calls 138s ['Click Button "Minus" id=minusButton', 'Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS final command quit 17 calls 125s ['Click Button "Minus" id=minusButton', 'Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS state         quit 17 calls 140s ['Click Button "Minus" id=minusButton', 'Click Button "Nine" id=num9Button', 'Click Button "Minus" id=minusButton', 'Click Button "Four" id=num4Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS back          quit 11 calls 89s ['Click Button "Minus" id=minusButton', 'Click Button "Nine" id=num9Button'] | in Calculator, press 9 - 4 = to find the answer
+      MISS baseline      quit 26 calls 230s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS final command confidence below the floor of 0.25 18 calls 134s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS state         quit 26 calls 226s ['Click Button "Two" id=num2Button', 'Click Button "Plus" id=plusButton', 'Click Button "Three" id=num3Button', 'Click Button "Plus" id=plusButton', 'Click Button "Four" id=num4Button', 'Click Button "Plus" id=plusButton'] | in Calculator, press 2 + 3 + 4 = to find the answer
+      MISS back          confidence below the floor of 0.25 7 calls 55s ['Click Button "Two" id=num2Button'] | in Calculator, press 2 + 3 + 4 = to find the answer
+press the Select button in Character Map
+  baseline       3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  final command  3/3 succeeded, 1 exact, 1.67 turns (optimal 1), 4.3 calls | misses: -
+  state          3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  back           3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+set the snip delay to 5 seconds in Snipping Tool
+  baseline       3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  final command  3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  state          3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  back           3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+turn on video capture mode in Snipping Tool
+  baseline       2/3 succeeded, 0 exact, 7.00 turns (optimal 1), 24.7 calls | misses: reached the action limit of 10 1
+  final command  1/3 succeeded, 1 exact, 1.00 turns (optimal 1), 6.3 calls | misses: quit 2
+  state          2/3 succeeded, 0 exact, 7.00 turns (optimal 1), 24.7 calls | misses: reached the action limit of 10 1
+  back           0/3 succeeded, 0 exact, - turns (optimal 1), 26.3 calls | misses: reached the action limit of 10 2, quit 1
+set the font to Arial Black in Character Map and then press the Select button
+  baseline       3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 6.0 calls | misses: -
+  final command  2/3 succeeded, 2 exact, 2.00 turns (optimal 2), 5.3 calls | misses: quit 1
+  state          3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 6.0 calls | misses: -
+  back           3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 6.0 calls | misses: -
+set the snip delay to 3 seconds and set the snipping area to Window in Snipping Tool
+  baseline       3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 9.0 calls | misses: -
+  final command  3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 9.0 calls | misses: -
+  state          3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 9.0 calls | misses: -
+  back           3/3 succeeded, 3 exact, 2.00 turns (optimal 2), 9.0 calls | misses: -
+press the Select button in Character Map, then press Select again
+  baseline       0/3 succeeded, 0 exact, - turns (optimal 2), 3.7 calls | misses: quit 3
+  final command  0/3 succeeded, 0 exact, - turns (optimal 2), 3.7 calls | misses: quit 2, confidence below the floor of 0.25 1
+  state          0/3 succeeded, 0 exact, - turns (optimal 2), 3.7 calls | misses: quit 3
+  back           0/3 succeeded, 0 exact, - turns (optimal 2), 3.0 calls | misses: quit 3
+in Calculator, press 1 + 1 = to find the answer
+  baseline       1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 15.7 calls | misses: quit 2
+  final command  0/3 succeeded, 0 exact, - turns (optimal 4), 12.7 calls | misses: quit 3
+  state          1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 15.7 calls | misses: quit 2
+  back           2/3 succeeded, 2 exact, 4.00 turns (optimal 4), 13.7 calls | misses: confidence below the floor of 0.25 1
+make sure the font is set to {seen} in Character Map
+  baseline       0/3 succeeded, 0 exact, - turns (optimal 0), 4.0 calls | misses: quit 3
+  final command  0/3 succeeded, 0 exact, - turns (optimal 0), 4.7 calls | misses: quit 3
+  state          0/3 succeeded, 0 exact, - turns (optimal 0), 4.0 calls | misses: quit 3
+  back           0/3 succeeded, 0 exact, - turns (optimal 0), 4.0 calls | misses: quit 3
+make sure Advanced view is unchecked in Character Map
+  baseline       0/3 succeeded, 0 exact, - turns (optimal 0), 3.0 calls | misses: quit 3
+  final command  0/3 succeeded, 0 exact, - turns (optimal 0), 4.3 calls | misses: quit 3
+  state          0/3 succeeded, 0 exact, - turns (optimal 0), 3.0 calls | misses: quit 3
+  back           0/3 succeeded, 0 exact, - turns (optimal 0), 3.0 calls | misses: quit 3
+turn on Advanced view in Character Map
+  baseline       3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  final command  3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  state          3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+  back           3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 3.0 calls | misses: -
+set the snipping area to Full screen in Snipping Tool
+  baseline       3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  final command  3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  state          3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+  back           3/3 succeeded, 3 exact, 1.00 turns (optimal 1), 5.0 calls | misses: -
+in Calculator, press 9 - 4 = to find the answer
+  baseline       1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 15.7 calls | misses: quit 2
+  final command  0/3 succeeded, 0 exact, - turns (optimal 4), 13.3 calls | misses: quit 3
+  state          1/3 succeeded, 1 exact, 4.00 turns (optimal 4), 15.7 calls | misses: quit 2
+  back           0/3 succeeded, 0 exact, - turns (optimal 4), 8.3 calls | misses: quit 3
+in Calculator, press 2 + 3 + 4 = to find the answer
+  baseline       0/3 succeeded, 0 exact, - turns (optimal 6), 23.0 calls | misses: quit 2, confidence below the floor of 0.25 1
+  final command  0/3 succeeded, 0 exact, - turns (optimal 6), 16.3 calls | misses: quit 2, confidence below the floor of 0.25 1
+  state          0/3 succeeded, 0 exact, - turns (optimal 6), 23.0 calls | misses: quit 2, confidence below the floor of 0.25 1
+  back           0/3 succeeded, 0 exact, - turns (optimal 6), 7.3 calls | misses: confidence below the floor of 0.25 3
+
+all goals
+  baseline       22/39 succeeded, 9.3 calls per run, paired vs baseline 0-0
+  final command  18/39 succeeded, 7.2 calls per run, paired vs baseline 1-5
+  state          22/39 succeeded, 9.3 calls per run, paired vs baseline 0-0
+  back           20/39 succeeded, 7.4 calls per run, paired vs baseline 2-4

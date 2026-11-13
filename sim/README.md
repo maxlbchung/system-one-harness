@@ -21,6 +21,19 @@ python sim/run_tests.py
 
 `--real` asks OpenJev-Flash-9B Q4_K_M in a local Ollama (CPU only, 5–10 s per decision). Start Ollama with `LLAMA_ARG_CACHE_RAM=0`: with the prompt cache on, llama-server grew to 13.9 GB and was OOM-killed. `--variants=baseline,resume` picks variants.
 
+## Current variants
+
+`sim_benchmark.py` now runs `benchmark.py`'s own goals, variants (`final command`, `state`,
+`back`) and scoring, plus on-screen checks and 5 extra goals. Results on the real model:
+`results_real_variants.txt` (summary in `LEDGER.md`). Proxy model: `results_proxy.txt`.
+
+Real model setup on Linux: download `OpenJev-Flash-9B-Q4_K_M.gguf` from
+huggingface.co/openjev/OpenJev-Flash-9B-GGUF, `ollama create openjev-flash-9b -f Modelfile`
+with `FROM ./OpenJev-Flash-9B-Q4_K_M.gguf`, and serve with `LLAMA_ARG_CACHE_RAM=0`.
+About 8 s per decision on 4 CPU cores; 3 repeats of 4 variants take about 3.5 hours.
+
+## Earlier rounds (older harness fork, flags no longer in this harness)
+
 ## Variants
 
 Harness flags, all off by default, each aimed at the biggest real-model failures. Round 1 tried the first three, round 2 the last two:

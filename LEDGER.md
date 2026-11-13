@@ -82,6 +82,24 @@ Verdict:     adopted | rejected | inconclusive
 Notes:       <what surprised you; trace file name>
 ```
 
+### 2026-11-13  `final command`, `state`, `back` vs baseline (simulated desktop)
+Commit:      see `sim/results_real_variants.txt` (run on this branch's harness)
+Model:       openjev-flash-9b, OpenJev-Flash-9B-Q4_K_M.gguf, Ollama on CPU
+Settings:    floor 0.25, actions 10, repeats 3; `python sim/sim_benchmark.py 3 --real`
+             (benchmark.py's 9 goals plus 4 sim extras, on simulated UIA trees, not Windows)
+Result:      baseline 22/39 | final command 18/39 | state 22/39 | back 20/39 succeeded
+Paired:      final command 1-5, state 0-0, back 2-4
+By class:    final command: lost capture mode x2, Arial Black x1, both 4-step Calculator goals
+             (quits early once history drops the path). back: capture mode 0/3 (toggles to the
+             action limit), 1+1= up 1->2, but 9-4= and 2+3+4= stall after one press.
+             state: every pick identical to baseline; "Now: off." was in the prompt and the
+             model still toggled Advanced view on the "make sure it's unchecked" goal.
+Verdict:     inconclusive (simulated desktop, n=3); no variant beats baseline. Keep all flags off.
+Notes:       Both already-done goals fail 0/3 in every variant: the model always acts
+             (re-selects Arial, toggles Advanced view). "Select twice" is 0/3 everywhere.
+             The proxy-model run (`sim/results_proxy.txt`) can't judge state or back.
+             Still owed: the Windows run.
+
 ### 2026-11-12  `state` and `back` built (no run yet)
 Not an experiment. `SHOW_STATE` and `ALLOW_BACK` are in the harness, both off, with
 variants `state` and `back`. The benchmark gained two already-done goals and an on-screen

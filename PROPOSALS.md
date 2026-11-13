@@ -6,8 +6,8 @@ verdict is recorded and its default is set.
 
 | # | Change | Flag | Variant | Status |
 |---|--------|------|---------|--------|
-| 2 | Show each control's current state in its option | `SHOW_STATE` | `state` | built, off, awaiting benchmark |
-| 3 | A "back" option, so a wrong turn isn't the end of the run | `ALLOW_BACK` | `back` | built, off, awaiting benchmark |
+| 2 | Show each control's current state in its option | `SHOW_STATE` | `state` | built, off; sim: no change (0-0), awaiting Windows benchmark |
+| 3 | A "back" option, so a wrong turn isn't the end of the run | `ALLOW_BACK` | `back` | built, off; sim: worse (2-4), awaiting Windows benchmark |
 
 Proposal 1 (traces and named variants) is done and removed. Both changes here are in the
 code, switched off, and pass `test_offline.py`. Neither has run against a real desktop or
