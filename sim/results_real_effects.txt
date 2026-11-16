@@ -1,0 +1,3 @@
+settings: floor 0.25, action limit 10, step limit 60, real model openjev-flash-9b, 3 repeats, variants baseline, effects
+
+      MISS baseline      TimeoutError('timed out') 1 calls 120s [] | press the Select button in Character Map
