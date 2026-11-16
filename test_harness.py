@@ -573,6 +573,30 @@ pairs = {
 }
 assert benchmark.paired(pairs, "new") == (2, 1)
 
+# Effects: the history says what an action changed in its window, but only when switched on,
+# and the "done" event's action, which the benchmark matches on, never carries it.
+light = Pattern(ToggleState=toggles.Off)
+lamp = Stateful("Lamp", {ids.TogglePattern: light}, acts={"toggle": lambda: setattr(light, "ToggleState", toggles.On)})
+shown_text = Node("Display is 0")
+lamp.acts["invoke"] = lambda: setattr(shown_text, "Name", "Display is 1")
+room = Node("Room", lamp, shown_text)
+home = Node("Desktop", room)
+seen_events = []
+ask = scripted('toggle Pane "Lamp"', "quit")  # The lone window opens without asking.
+harness.run("turn on the lamp", home, ask, on_event=seen_events.append)
+assert ask.done[1] == [['Pane "Room"', 'Toggle Pane "Lamp"']]  # Off: nothing added.
+light.ToggleState = toggles.Off
+harness.SHOW_EFFECTS = True
+seen_events.clear()
+ask = scripted('toggle Pane "Lamp"', 'invoke Pane "Lamp"', 'invoke Pane "Lamp"', "quit")
+harness.run("turn on the lamp", home, ask, on_event=seen_events.append)
+assert ask.done[1][0][-1] == 'Toggle Pane "Lamp" (changed: Pane "Lamp" off -> on)'
+assert ask.done[2][1][-1] == 'Click Pane "Lamp" (changed: Pane "Display is 0" -> "Display is 1")'
+assert ask.done[3][2][-1] == 'Click Pane "Lamp" (nothing visible changed)'
+assert [e["action"] for e in seen_events if e["kind"] == "done"] == ['Toggle Pane "Lamp"', 'Click Pane "Lamp"', 'Click Pane "Lamp"']
+assert harness.setting(Stateful("Box", {ids.ValuePattern: Pattern(Value="a\n b")})) == '"a b"' and harness.setting(Node("x")) == ""
+harness.SHOW_EFFECTS = False
+
 # The benchmark finds a control anywhere under a window, and reads nothing where there isn't one.
 assert benchmark.find(panel, lambda c: c.Name == "Arial") is chosen and benchmark.find(panel, lambda c: False) is None
 assert benchmark.find(fork, lambda c: c.Name == "Go") is right.kids[0]
@@ -584,7 +608,7 @@ assert benchmark.advanced_view_off() is True
 
 # Every variant names real harness constants, and both new options ship switched off.
 assert all(hasattr(harness, constant) for overrides in benchmark.VARIANTS.values() for constant in overrides)
-assert harness.SHOW_STATE is False and harness.ALLOW_BACK is False
+assert harness.SHOW_STATE is False and harness.ALLOW_BACK is False and harness.SHOW_EFFECTS is False
 
 # Each variant starts from the shipped constants, so one's overrides never leak into the next.
 originals = {"HISTORY_PATHS": harness.HISTORY_PATHS}

@@ -33,6 +33,7 @@ VARIANTS = {
     "final command": {"HISTORY_PATHS": False},
     "state": {"SHOW_STATE": True},
     "back": {"ALLOW_BACK": True},
+    "effects": {"SHOW_EFFECTS": True},
 }
 RUNS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "runs")
 SEARCH_SECONDS = 1

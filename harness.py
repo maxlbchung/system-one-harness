@@ -39,6 +39,8 @@ MIN_CONFIDENCE = 0.5
 HISTORY_PATHS = True  # History shows the nodes picked on the way to each action, not just the action.
 SHOW_STATE = False  # Options say what a control is set to now. Off until the benchmark has judged it.
 ALLOW_BACK = False  # Below the desktop, the model can go back up a level. Off until the benchmark has judged it.
+SHOW_EFFECTS = False  # History says what each action changed in its window. Off until the benchmark has judged it.
+SNAPSHOT_LIMIT, MAX_EFFECTS = 300, 3  # Elements read per snapshot, changes shown per action.
 SHUFFLE = random.Random()  # Its own generator, so the benchmark can seed the option order and nothing else.
 
 INSTRUCTIONS = "Choose the best next step. Don't repeat what's done. Quit only when all of it is done or if goal is unreachable."
@@ -182,6 +184,46 @@ def state(control, verb):
     except COMError:  # The element vanished while it was read.
         pass
     return ""
+
+
+def setting(control):
+    """What a control is set to, whatever would change it: on, off, or its quoted value. For effects."""
+    try:
+        if p := control.GetPattern(uia.PatternId.TogglePattern):
+            return {uia.ToggleState.On: "on", uia.ToggleState.Off: "off"}.get(p.ToggleState, "mixed")
+        if (p := control.GetPattern(uia.PatternId.ValuePattern)) and p.Value:
+            return f'"{" ".join(p.Value.split())[:PREVIEW_NAME]}"'
+    except COMError:  # The element vanished while it was read.
+        pass
+    return ""
+
+
+def snapshot(window):
+    """Element id -> (type, name, setting) for what the agent can see in window, breadth first."""
+    found, queue = {}, [window]
+    while queue and len(found) < SNAPSHOT_LIMIT:
+        node = queue.pop(0)
+        try:
+            found[tuple(node.GetRuntimeId())] = (node.ControlTypeName.removesuffix("Control"), " ".join(node.Name.split())[:PREVIEW_NAME], setting(node))
+        except COMError:  # The element vanished while it was read.
+            continue
+        queue += children(node)
+    return found
+
+
+def effects(before, after):
+    """What changed between two snapshots, in words, for elements in both. Goes in the history only."""
+    changes = []
+    for key, (kind, name, was) in before.items():
+        if key in after and after[key] != (kind, name, was):
+            _, new_name, now = after[key]
+            if new_name == name:
+                changes.append(f'{kind} "{name}" {was or "empty"} -> {now or "empty"}')
+            else:
+                changes.append(f'{kind} "{name}"{" " + was if was else ""} -> "{new_name}"{" " + now if now else ""}')
+    if not changes:
+        return " (nothing visible changed)"
+    return f" (changed: {'; '.join(changes[:MAX_EFFECTS])})"
 
 
 def describe(verb, control, text):
@@ -372,20 +414,28 @@ def walk(goal, root, ask, text, permit, on_event, cancelled, undo):
                 if reverse is collapse and is_collapsed(dropdown):
                     dropdown.GetPattern(uia.PatternId.ExpandCollapsePattern).Expand()
             finished = request(verb, control, text).removesuffix("?")  # Read first: acting can remove the element.
+            window = above[1] if len(above) > 1 else node  # The top-level window it acts in.
+            before = snapshot(window) if SHOW_EFFECTS else None
             act(text) if verb == "type" else act()
-            done.append([*path[1:], finished])  # The root is where every walk starts, so nothing picked it.
-            on_event({"kind": "done", "action": finished})
             # The window it acted in stays up, but a dropdown should close behind its pick.
             for opened, reverse in undo:
                 if reverse is collapse:
                     collapse(opened)
             undo.clear()
+            effect = ""
+            if SHOW_EFFECTS:
+                time.sleep(ACTION_WAIT)  # Let the screen catch up before reading what changed.
+                effect = effects(before, snapshot(window))
+            # The root is where every walk starts, so nothing picked it. The effect is for the model's history only.
+            done.append([*path[1:], finished + effect])
+            on_event({"kind": "done", "action": finished, "effect": effect})
             if len(done) >= MAX_ACTIONS:
                 on_event({"kind": "stop", "reason": f"reached the action limit of {MAX_ACTIONS}"})
                 return "quit"
             if verb == "type":
                 text = None  # There's one text per prompt, so it can't be typed again.
-            time.sleep(ACTION_WAIT)
+            if not SHOW_EFFECTS:  # Effects waited already.
+                time.sleep(ACTION_WAIT)
             on_event({"kind": "restart"})
             node, path = root, [label(root)]
             above.clear()
