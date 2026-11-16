@@ -8,7 +8,7 @@ verdict is recorded and its default is set.
 |---|--------|------|---------|--------|
 | 2 | Show each control's current state in its option | `SHOW_STATE` | `state` | built, off; sim: no change (0-0), awaiting Windows benchmark |
 | 3 | A "back" option, so a wrong turn isn't the end of the run | `ALLOW_BACK` | `back` | built, off; sim: worse (2-4), awaiting Windows benchmark |
-| 4 | Say what each action changed, in the history | `SHOW_EFFECTS` | `effects` | ported from the old fork (won there, 27/33 vs 22/33), off; sim rerun in progress |
+| 4 | Say what each action changed, in the history | `SHOW_EFFECTS` | `effects` | off; sim: won again (28/39 vs 21/39, 8-1), adopt once Windows confirms |
 
 Proposal 1 (traces and named variants) is done and removed. Both changes here are in the
 code, switched off, and pass `test_offline.py`. Neither has run against a real desktop or

@@ -38,14 +38,15 @@ wording, state text or "back". Floor 0.25, 10 actions, paired seeds unless noted
 | R4 | 11-13 | Final-command history (`HISTORY_PATHS=False`) | real, 3/goal | 22/39 | 18/39 (paired 1-5) | rejected again | this branch |
 | R4 | 11-13 | Control state in options (`SHOW_STATE`) | real, 3/goal | 22/39 | 22/39 (0-0) | tie again, model ignores it | this branch |
 | R4 | 11-13 | Back option, restart from desktop (`ALLOW_BACK`) | real, 3/goal | 22/39 | 20/39 (2-4) | no gain | this branch |
+| R5 | 11-16 | What each action changed, in the history (`SHOW_EFFECTS`, ported) | real, 3/goal | 21/39 (one cold-start timeout) | **28/39 (8-1; 7-1 without the timeout)** | **adopt, pending Windows run** | main |
 
 R1–R3 used 11 goals (`benchmark.py`'s 7 then plus 4 extras); R4 used `benchmark.py`'s current 9
 (two already-done goals added) plus 4 extras. Totals across rounds aren't comparable; compare
 within a row.
 
 **So R4 repeated R0 and R1.** `final command` and `state` had already lost or tied, and `back`
-is close to `RESUME`, which lost. The one change that has won, `SHOW_EFFECTS`, was listed
-below as an untested idea and isn't in this harness.
+is close to `RESUME`, which lost. `SHOW_EFFECTS`, the one earlier winner, was ported and won
+again in R5.
 
 ## Works (in the harness now)
 
@@ -97,7 +98,7 @@ Promote to `PROPOSALS.md` only with a failure class from a trace to justify it.
 - Scale the confidence floor by option count.
 - Go back, instead of stopping, on a low-confidence step.
 - End the prompt with an explicit answer cue so a bare letter is the likeliest next token.
-- ~~Tell the model what an action changed in the history.~~ Tested: `SHOW_EFFECTS`, R2, 27/33 vs 22/33. Port it from `claude/peaceful-feynman-2emz8i`.
+- ~~Tell the model what an action changed in the history.~~ Tested: `SHOW_EFFECTS`, R2, 27/33 vs 22/33. Ported; won again in R5.
 - Cache previews within one walk to cut UIA reads.
 
 ## Experiment log
@@ -116,6 +117,19 @@ By class:    <failure class counts that moved>
 Verdict:     adopted | rejected | inconclusive
 Notes:       <what surprised you; trace file name>
 ```
+
+### 2026-11-16  `effects` vs baseline (simulated desktop)
+Model:       openjev-flash-9b Q4_K_M, Ollama on CPU
+Settings:    floor 0.25, actions 10, repeats 3; `python sim/sim_benchmark.py 3 --real --variants=effects`
+Hypothesis:  The model repeats or stops early because it can't see what its actions did.
+Result:      baseline 21/39 | effects 28/39 succeeded
+Paired:      8-1 (7-1 excluding a baseline run that timed out while the model loaded)
+By class:    capture mode 2/3 -> 3/3 (7.0 -> 4.0 turns); Select twice 0/3 -> 2/3;
+             2+3+4= 0/3 -> 3/3, all exact. Calculator 1+1= and 9-4= unchanged at 1/3.
+             Already-done goals still 0/3: effects only help after an action.
+Verdict:     adopt by WORKFLOW's rule (>= 7-2), matching R2 on the old fork (27/33 vs 22/33).
+             Default left off until the Windows benchmark confirms: `python benchmark.py 5 effects`.
+Notes:       `sim/results_real_effects.txt`.
 
 ### 2026-11-13  `final command`, `state`, `back` vs baseline (simulated desktop)
 Commit:      see `sim/results_real_variants.txt` (run on this branch's harness)
